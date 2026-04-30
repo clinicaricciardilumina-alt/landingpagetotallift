@@ -1,0 +1,35 @@
+[
+  {
+    "id": 1,
+    "text": "Qual è il tuo obiettivo principale?",
+    "type": "single",
+    "options": [
+      "Ringiovanimento viso completo",
+      "Ridurre rughe di espressione",
+      "Rilassamento specifico (collo, occhi, fronte)",
+      "Solo curiosità, voglio capire come funziona"
+    ]
+  },
+  {
+    "id": 2,
+    "text": "Questa è la tua prima volta con trattamenti di questo tipo?",
+    "type": "single",
+    "options": [
+      "Sì, è la mia prima volta",
+      "Ho già fatto altri trattamenti prima",
+      "Ho fatto interventi più invasivi",
+      "Preferisco non dire"
+    ]
+  },
+  {
+    "id": 3,
+    "text": "Quando vorresti fare il trattamento?",
+    "type": "single",
+    "options": [
+      "Subito, il prima possibile",
+      "Tra 1-2 mesi",
+      "Tra 3-6 mesi",
+      "Solo curiosità per ora"
+    ]
+  }
+]
