@@ -92,12 +92,45 @@ export const getSlots = async () => {
   }
 };
 
-export const addSlot = async (slot: any) => {
+export const generateSlots = async (config: any) => {
   try {
-    const docRef = await addDoc(collection(db, "slots"), slot);
-    return { ...slot, id: docRef.id };
+    const { dates, morningStart, morningEnd, afternoonStart, afternoonEnd, duration, pause } = config;
+    const slots = [];
+
+    for (const date of dates) {
+      const timeSlots = [];
+      
+      if (morningStart && morningEnd) {
+        timeSlots.push(...generateTimeSlots(morningStart, morningEnd, duration, pause));
+      }
+      if (afternoonStart && afternoonEnd) {
+        timeSlots.push(...generateTimeSlots(afternoonStart, afternoonEnd, duration, pause));
+      }
+
+      for (const time of timeSlots) {
+        const slot = {
+          date,
+          time,
+          duration,
+          isBlocked: false,
+          createdAt: new Date().toISOString()
+        };
+        const docRef = await addDoc(collection(db, "slots"), slot);
+        slots.push({ ...slot, id: docRef.id });
+      }
+    }
+    return slots;
   } catch (e) {
-    console.error("Errore addSlot:", e);
+    console.error("Errore generateSlots:", e);
+    throw e;
+  }
+};
+
+export const toggleSlotStatus = async (id: string, isBlocked: boolean) => {
+  try {
+    await setDoc(doc(db, "slots", id), { isBlocked }, { merge: true });
+  } catch (e) {
+    console.error("Errore toggleSlotStatus:", e);
     throw e;
   }
 };
@@ -110,6 +143,24 @@ export const deleteSlot = async (id: string) => {
     throw e;
   }
 };
+
+function generateTimeSlots(start: string, end: string, duration: number, pause: number): string[] {
+  const slots = [];
+  const [startH, startM] = start.split(":").map(Number);
+  const [endH, endM] = end.split(":").map(Number);
+  
+  let currentMinutes = startH * 60 + startM;
+  const endMinutes = endH * 60 + endM;
+  
+  while (currentMinutes + duration <= endMinutes) {
+    const h = Math.floor(currentMinutes / 60);
+    const m = currentMinutes % 60;
+    slots.push(`${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`);
+    currentMinutes += duration + pause;
+  }
+  
+  return slots;
+}
 
 // BOOKINGS
 export const getBookings = async () => {
