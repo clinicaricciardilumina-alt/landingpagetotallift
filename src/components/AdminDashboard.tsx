@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import * as firebaseService from "../lib/firebaseService";import { motion, AnimatePresence } from "framer-motion";
 import { 
   Save, Image as ImageIcon, Layout, Settings, CheckCircle2, AlertCircle, 
   Trash2, Plus, Calendar, Users, BarChart3, HelpCircle, ChevronRight,
