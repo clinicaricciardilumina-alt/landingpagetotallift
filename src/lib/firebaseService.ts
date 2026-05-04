@@ -63,6 +63,15 @@ export const addQuestion = async (question: any) => {
   }
 };
 
+export const updateQuestion = async (id: string, question: any) => {
+  try {
+    await setDoc(doc(db, "questions", id), question);
+  } catch (e) {
+    console.error("Errore updateQuestion:", e);
+    throw e;
+  }
+};
+
 export const deleteQuestion = async (id: string) => {
   try {
     await deleteDoc(doc(db, "questions", id));
