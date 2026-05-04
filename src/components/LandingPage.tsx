@@ -29,7 +29,7 @@ export default function LandingPage() {
         firebaseService.getSlots()
       ]);
       setQuestions(questionsData);
-      setSlots(slotsData);
+      setSlots(slotsData.filter((s: any) => !s.isBlocked));
       setVisibleQuestions(questionsData.filter((q: any) => !q.cascata).map((q: any) => q.id));
     } catch (e) {
       console.error(e);
