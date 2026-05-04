@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  Save, Image as ImageIcon, Layout, Settings, CheckCircle2, AlertCircle, 
+import {
+  Save, Image as ImageIcon, Layout, Settings, CheckCircle2, AlertCircle,
   Trash2, Plus, Calendar, Users, BarChart3, HelpCircle, ChevronRight,
   ExternalLink, Clock
 } from "lucide-react";
@@ -11,7 +11,8 @@ import * as firebaseService from "../lib/firebaseService";
 
 type Tab = "customize" | "questions" | "slots" | "bookings" | "stats";
 
-export default function AdminDashboard({ setIsAuthenticated }: { setIsAuthenticated: (val: boolean) => void }) {  const [activeTab, setActiveTab] = useState<Tab>("customize");
+export default function AdminDashboard({ setIsAuthenticated }: { setIsAuthenticated: (val: boolean) => void }) {
+  const [activeTab, setActiveTab] = useState<Tab>("customize");
   const [settings, setSettings] = useState<LandingSettings | null>(null);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [slots, setSlots] = useState<any[]>([]);
@@ -20,7 +21,6 @@ export default function AdminDashboard({ setIsAuthenticated }: { setIsAuthentica
   const [availableImages, setAvailableImages] = useState<string[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [saveStatus, setSaveStatus] = useState<"idle" | "success" | "error">("idle");
-
   const [slotForm, setSlotForm] = useState({ date: "", time: "09:00", capacity: 4 });
 
   useEffect(() => {
@@ -34,16 +34,16 @@ export default function AdminDashboard({ setIsAuthenticated }: { setIsAuthentica
       const slotsData = await firebaseService.getSlots();
       const bookingsData = await firebaseService.getBookings();
       const statsData = await firebaseService.getStats();
-      
-      setSettings(settingsData || { 
-        hero_title: "TOTAL LIFT", 
-        hero_subtitle: "Total Beauty Day", 
-        hero_date: "", 
-        hero_description: "", 
-        cta_text: "", 
-        hero_image: "", 
-        selected_images: [], 
-        image_urls: {} 
+
+      setSettings(settingsData || {
+        hero_title: "TOTAL LIFT",
+        hero_subtitle: "Total Beauty Day",
+        hero_date: "",
+        hero_description: "",
+        cta_text: "",
+        hero_image: "",
+        selected_images: [],
+        image_urls: {}
       });
       setQuestions(questionsData);
       setSlots(slotsData);
@@ -98,8 +98,8 @@ export default function AdminDashboard({ setIsAuthenticated }: { setIsAuthentica
     const isSelected = settings.selected_images.includes(img);
     setSettings({
       ...settings,
-      selected_images: isSelected 
-        ? settings.selected_images.filter(i => i !== img) 
+      selected_images: isSelected
+        ? settings.selected_images.filter(i => i !== img)
         : [...settings.selected_images, img]
     });
   };
@@ -107,7 +107,7 @@ export default function AdminDashboard({ setIsAuthenticated }: { setIsAuthentica
   if (!settings) return <div className="p-8 text-center font-bold text-gray-500">Caricamento...</div>;
 
   return (
-    <div className="min-h-screen bg-[#f5f8fa] flex flex-col md:flex-row">
+    <div className="min-h-screen bg-[#f5f8fa] flex flex-col md:flex-row pb-32 md:pb-0">
       <aside className="w-full md:w-64 bg-gradient-to-b from-[#0066A1] to-[#004d7a] text-white flex flex-col shadow-2xl shrink-0 z-30">
         <div className="p-8 border-b border-white/10">
           <h2 className="text-xl font-black tracking-tighter flex items-center gap-2">
@@ -115,7 +115,7 @@ export default function AdminDashboard({ setIsAuthenticated }: { setIsAuthentica
           </h2>
           <p className="text-[10px] opacity-60 font-black uppercase tracking-widest mt-1">Admin Panel</p>
         </div>
-        
+
         <nav className="flex-1 p-4 space-y-2 mt-4">
           {[
             { id: "customize" as Tab, label: "Personalizza Landing", icon: Layout },
@@ -124,13 +124,13 @@ export default function AdminDashboard({ setIsAuthenticated }: { setIsAuthentica
             { id: "bookings" as Tab, label: "Prenotazioni", icon: Users },
             { id: "stats" as Tab, label: "Statistiche", icon: BarChart3 }
           ].map(item => (
-            <button 
+            <button
               key={item.id}
               onClick={() => setActiveTab(item.id)}
               className={cn(
                 "w-full flex items-center gap-3 p-4 rounded-xl font-bold transition-all transform hover:translate-x-1",
-                activeTab === item.id 
-                  ? "bg-white/20 text-white shadow-lg border-l-4 border-[#96C8E6]" 
+                activeTab === item.id
+                  ? "bg-white/20 text-white shadow-lg border-l-4 border-[#96C8E6]"
                   : "hover:bg-white/5 text-white/70"
               )}
             >
@@ -140,18 +140,28 @@ export default function AdminDashboard({ setIsAuthenticated }: { setIsAuthentica
           ))}
         </nav>
 
-        <div className="p-6 mt-auto border-t border-white/10">
-          <a 
-            href="/" 
-            target="_blank" 
+        <div className="p-6 mt-auto border-t border-white/10 space-y-3">
+          
+            href="/"
+            target="_blank"
             className="flex items-center justify-center gap-2 w-full py-3 bg-white/10 rounded-xl text-xs font-bold hover:bg-white/20 transition-all"
           >
             Visualizza Landing <ExternalLink size={14} />
           </a>
+          <button
+            onClick={() => {
+              localStorage.removeItem("adminAuthenticated");
+              setIsAuthenticated(false);
+              window.location.href = "/admin";
+            }}
+            className="flex items-center justify-center gap-2 w-full py-3 bg-red-600 rounded-xl text-xs font-bold hover:bg-red-700 transition-all"
+          >
+            Logout <ChevronRight size={14} />
+          </button>
         </div>
       </aside>
 
-      <main className="flex-1 overflow-y-auto p-6 md:p-10 relative">
+      <main className="flex-1 overflow-y-auto p-6 md:p-10">
         <div className="max-w-5xl mx-auto space-y-10">
           <header className="flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div>
@@ -179,7 +189,7 @@ export default function AdminDashboard({ setIsAuthenticated }: { setIsAuthentica
               </div>
               <div className="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-orange-400 hover:shadow-md transition-all">
                 <div className="text-gray-400 font-bold text-[10px] uppercase tracking-widest mb-1">Conversion</div>
-                <div className="text-3xl font-black text-orange-500">{stats.total_bookings > 0 ? Math.round((stats.paid_bookings/stats.total_bookings)*100) : 0}%</div>
+                <div className="text-3xl font-black text-orange-500">{stats.total_bookings > 0 ? Math.round((stats.paid_bookings / stats.total_bookings) * 100) : 0}%</div>
               </div>
             </div>
           )}
@@ -193,7 +203,7 @@ export default function AdminDashboard({ setIsAuthenticated }: { setIsAuthentica
                 { id: "bookings", label: "👥 Prenotazioni" },
                 { id: "stats", label: "📈 Statistiche" }
               ].map(t => (
-                <button 
+                <button
                   key={t.id}
                   onClick={() => setActiveTab(t.id as Tab)}
                   className={cn(
@@ -205,12 +215,11 @@ export default function AdminDashboard({ setIsAuthenticated }: { setIsAuthentica
                 </button>
               ))}
             </div>
-
             <AnimatePresence>
               {(saveStatus === "success" || saveStatus === "error") && (
-                <motion.div 
-                  initial={{ opacity: 0, scale: 0.9 }} 
-                  animate={{ opacity: 1, scale: 1 }} 
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0 }}
                   className={cn(
                     "flex items-center gap-2 px-4 py-2 rounded-full font-bold text-xs shadow-lg",
@@ -226,7 +235,7 @@ export default function AdminDashboard({ setIsAuthenticated }: { setIsAuthentica
 
           <AnimatePresence mode="wait">
             {activeTab === "customize" && (
-              <motion.div 
+              <motion.div
                 key="customize"
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -241,46 +250,54 @@ export default function AdminDashboard({ setIsAuthenticated }: { setIsAuthentica
                     <div className="space-y-6">
                       <div>
                         <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">Titolo</label>
-                        <input 
-                          value={settings.hero_title} 
+                        <input
+                          value={settings.hero_title}
                           onChange={e => setSettings({...settings, hero_title: e.target.value})}
                           className="w-full bg-gray-50 border border-gray-200 rounded-xl p-4 font-bold text-gray-800 outline-none focus:ring-4 focus:ring-[#0066A1]/10"
                         />
                       </div>
                       <div>
+                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">Sottotitolo</label>
+                        <input
+                          value={settings.hero_subtitle}
+                          onChange={e => setSettings({...settings, hero_subtitle: e.target.value})}
+                          className="w-full bg-gray-50 border border-gray-200 rounded-xl p-4 font-bold text-gray-800 outline-none focus:ring-4 focus:ring-[#0066A1]/10"
+                        />
+                      </div>
+                      <div>
                         <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">Data</label>
-                        <input 
-                          value={settings.hero_date} 
+                        <input
+                          value={settings.hero_date}
                           onChange={e => setSettings({...settings, hero_date: e.target.value})}
                           className="w-full bg-gray-50 border border-gray-200 rounded-xl p-4 font-bold"
                         />
                       </div>
                       <div>
                         <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">CTA</label>
-                        <input 
-                          value={settings.cta_text} 
+                        <input
+                          value={settings.cta_text}
                           onChange={e => setSettings({...settings, cta_text: e.target.value})}
                           className="w-full bg-gray-50 border border-gray-200 rounded-xl p-4 font-bold"
                         />
                       </div>
                       <div>
                         <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">Descrizione</label>
-                        <textarea 
+                        <textarea
                           rows={4}
-                          value={settings.hero_description} 
+                          value={settings.hero_description}
                           onChange={e => setSettings({...settings, hero_description: e.target.value})}
                           className="w-full bg-gray-50 border border-gray-200 rounded-xl p-4 font-medium text-gray-600 resize-none"
                         />
                       </div>
                     </div>
                   </section>
-                  
-                  <button 
+
+                  <button
                     onClick={handleSaveSettings}
                     disabled={isSaving}
                     className="w-full bg-[#7CB342] text-white py-5 rounded-2xl font-black text-lg shadow-xl hover:bg-[#689F38] disabled:opacity-50"
                   >
-                    {isSaving ? "Salvataggio..." : "Salva"}
+                    {isSaving ? "Salvataggio..." : "✓ Salva Impostazioni"}
                   </button>
                 </div>
 
@@ -288,12 +305,11 @@ export default function AdminDashboard({ setIsAuthenticated }: { setIsAuthentica
                   <h3 className="text-lg font-black text-[#0066A1] mb-6 flex items-center gap-2 uppercase">
                     <ImageIcon size={20} /> Immagini
                   </h3>
-                  
+
                   <div className="space-y-4 max-h-[600px] overflow-y-auto">
                     {availableImages.map(img => {
                       const imageUrls = settings.image_urls || {};
                       const currentUrl = imageUrls[img] || `/images/${img}`;
-
                       return (
                         <div key={img} className="border border-gray-200 rounded-lg p-3 space-y-2">
                           <label className="flex items-center gap-2 cursor-pointer">
@@ -305,7 +321,6 @@ export default function AdminDashboard({ setIsAuthenticated }: { setIsAuthentica
                             />
                             <span className="font-bold text-gray-800 text-sm">{img}</span>
                           </label>
-
                           <input
                             type="text"
                             value={currentUrl}
@@ -316,7 +331,6 @@ export default function AdminDashboard({ setIsAuthenticated }: { setIsAuthentica
                             placeholder="/images/file.jpg"
                             className="w-full bg-gray-50 border border-gray-200 rounded p-2 text-xs"
                           />
-
                           <div className="aspect-video rounded overflow-hidden bg-gray-200">
                             <img src={currentUrl} className="w-full h-full object-cover" alt={img} onError={(e) => e.currentTarget.style.display = 'none'} />
                           </div>
@@ -336,7 +350,6 @@ export default function AdminDashboard({ setIsAuthenticated }: { setIsAuthentica
                     <Plus size={16} /> Nuova
                   </button>
                 </div>
-
                 {questions.map((q, idx) => (
                   <div key={q.id} className="bg-white p-6 rounded-lg border border-gray-200 flex gap-4">
                     <div className="w-8 h-8 bg-[#E8F4F8] text-[#0066A1] font-bold rounded flex items-center justify-center shrink-0">{idx + 1}</div>
@@ -369,7 +382,6 @@ export default function AdminDashboard({ setIsAuthenticated }: { setIsAuthentica
                     <button onClick={createSlot} className="w-full bg-[#0066A1] text-white py-2 rounded font-bold">Crea</button>
                   </div>
                 </div>
-
                 <div className="lg:col-span-2 grid gap-3">
                   {slots.map((s, idx) => (
                     <div key={idx} className="bg-white p-4 rounded border border-gray-200 flex justify-between items-center">
