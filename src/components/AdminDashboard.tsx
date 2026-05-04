@@ -11,8 +11,7 @@ import * as firebaseService from "../lib/firebaseService";
 
 type Tab = "customize" | "questions" | "slots" | "bookings" | "stats";
 
-export default function AdminDashboard() {
-  const [activeTab, setActiveTab] = useState<Tab>("customize");
+export default function AdminDashboard({ setIsAuthenticated }: { setIsAuthenticated: (val: boolean) => void }) {  const [activeTab, setActiveTab] = useState<Tab>("customize");
   const [settings, setSettings] = useState<LandingSettings | null>(null);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [slots, setSlots] = useState<any[]>([]);
