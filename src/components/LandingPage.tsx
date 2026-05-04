@@ -10,6 +10,7 @@ export default function LandingPage() {
   const [selectedSlot, setSelectedSlot] = useState<any>(null);
   const [bookingForm, setBookingForm] = useState({ name: "", email: "", phone: "" });
   const [loading, setLoading] = useState(true);
+  const [visibleQuestions, setVisibleQuestions] = useState<string[]>([]);
 
   useEffect(() => {
     const unsubscribe = firebaseService.subscribeToSettings((settingsData) => {
@@ -29,11 +30,25 @@ export default function LandingPage() {
       ]);
       setQuestions(questionsData);
       setSlots(slotsData);
+      setVisibleQuestions(questionsData.filter((q: any) => !q.cascata).map((q: any) => q.id));
     } catch (e) {
       console.error(e);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleAnswerChange = (questionId: string, answer: string) => {
+    setAnswers({...answers, [questionId]: answer});
+    
+    const nextQuestions = questions
+      .filter((q: any) => q.cascata && q.cascata.domanda_id === questionId && q.cascata.risposta === answer)
+      .map((q: any) => q.id);
+    
+    setVisibleQuestions([
+      ...visibleQuestions.filter((qId: string) => !questions.find((q: any) => q.cascata?.domanda_id === questionId)),
+      ...nextQuestions
+    ]);
   };
 
   const handleBooking = async (e: React.FormEvent) => {
@@ -75,7 +90,6 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Hero */}
       <section className="min-h-screen bg-gradient-to-r from-[#0066A1] to-[#004d7a] text-white flex items-center px-6">
         <div className="max-w-4xl mx-auto text-center w-full">
           <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-6xl font-black mb-4">
@@ -96,35 +110,54 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Quiz */}
       <section className="py-20 bg-[#f5f8fa] px-6">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-4xl font-black text-[#0066A1] mb-12 text-center">Rispondi al Quiz</h2>
           <div className="bg-white p-8 rounded-2xl shadow-lg space-y-8">
-            {questions.map((q) => (
+            {questions.filter((q: any) => visibleQuestions.includes(q.id)).map((q: any) => (
               <div key={q.id}>
                 <h3 className="font-bold text-lg mb-3">{q.text}</h3>
-                <div className="space-y-2">
-                  {q.options.map((opt: string, idx: number) => (
-                    <label key={idx} className="flex items-center gap-3 cursor-pointer p-3 hover:bg-gray-50 rounded">
-                      <input
-                        type="radio"
-                        name={`q-${q.id}`}
-                        value={opt}
-                        onChange={() => setAnswers({...answers, [q.id]: opt})}
-                        className="w-4 h-4"
-                      />
-                      <span>{opt}</span>
-                    </label>
-                  ))}
-                </div>
+                {q.type === "text" ? (
+                  <textarea
+                    value={answers[q.id] || ""}
+                    onChange={(e) => handleAnswerChange(q.id, e.target.value)}
+                    className="w-full border p-3 rounded"
+                    rows={3}
+                    placeholder="La tua risposta..."
+                  />
+                ) : (
+                  <div className="space-y-2">
+                    {q.options.map((opt: string, idx: number) => (
+                      <label key={idx} className="flex items-center gap-3 cursor-pointer p-3 hover:bg-gray-50 rounded">
+                        <input
+                          type={q.type === "single" ? "radio" : "checkbox"}
+                          name={`q-${q.id}`}
+                          value={opt}
+                          checked={q.type === "single" ? answers[q.id] === opt : (answers[q.id] || []).includes(opt)}
+                          onChange={() => {
+                            if (q.type === "single") {
+                              handleAnswerChange(q.id, opt);
+                            } else {
+                              const current = answers[q.id] || [];
+                              const updated = current.includes(opt)
+                                ? current.filter((a: string) => a !== opt)
+                                : [...current, opt];
+                              handleAnswerChange(q.id, updated);
+                            }
+                          }}
+                          className="w-4 h-4"
+                        />
+                        <span>{opt}</span>
+                      </label>
+                    ))}
+                  </div>
+                )}
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Booking */}
       <section className="py-20 px-6">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-4xl font-black text-[#0066A1] mb-12 text-center">Prenota il Tuo Slot</h2>
@@ -132,7 +165,7 @@ export default function LandingPage() {
             <div>
               <label className="block font-bold mb-4">Data e Ora:</label>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                {slots.map((s, idx) => (
+                {slots.map((s: any, idx: number) => (
                   <button
                     key={idx}
                     type="button"
@@ -192,7 +225,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Footer */}
       <footer className="bg-[#0066A1] text-white text-center py-8">
         <p className="font-bold">Studio Ricciardi © 2024</p>
       </footer>
