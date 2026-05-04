@@ -11,7 +11,6 @@ export default function AdminDashboard({ setIsAuthenticated }: { setIsAuthentica
   const [bookings, setBookings] = useState<any[]>([]);
   const [stats, setStats] = useState<any>(null);
   const [isSaving, setIsSaving] = useState(false);
-  const [slotForm, setSlotForm] = useState({ date: "", time: "09:00" });
 
   useEffect(() => {
     loadData();
@@ -46,31 +45,6 @@ export default function AdminDashboard({ setIsAuthenticated }: { setIsAuthentica
       alert("❌ Errore nel salvataggio");
     } finally {
       setIsSaving(false);
-    }
-  };
-
-  const deleteSlot = async (id: string) => {
-    if (confirm("Eliminare?")) {
-      try {
-        await firebaseService.deleteSlot(id);
-        loadData();
-      } catch (e) {
-        alert("Errore");
-      }
-    }
-  };
-
-  const addSlot = async () => {
-    if (!slotForm.date) {
-      alert("Scegli una data");
-      return;
-    }
-    try {
-      await firebaseService.addSlot(slotForm);
-      setSlotForm({ date: "", time: "09:00" });
-      loadData();
-    } catch (e) {
-      alert("Errore");
     }
   };
 
@@ -166,21 +140,49 @@ export default function AdminDashboard({ setIsAuthenticated }: { setIsAuthentica
           )}
 
           {activeTab === "slots" && (
-            <div className="max-w-3xl">
-              <h2 className="text-xl font-bold mb-4">Slot</h2>
-              <div className="border p-4 mb-4 rounded bg-gray-50">
-                <input type="date" value={slotForm.date} onChange={(e) => setSlotForm({...slotForm, date: e.target.value})} className="w-full border p-2 rounded mb-2" />
-                <select value={slotForm.time} onChange={(e) => setSlotForm({...slotForm, time: e.target.value})} className="w-full border p-2 rounded mb-2">
-                  {["09:00", "10:00", "11:00", "14:00", "15:00", "16:00"].map((t) => <option key={t}>{t}</option>)}
-                </select>
-                <button onClick={addSlot} className="w-full bg-[#0066A1] text-white py-2 rounded font-bold">Crea Slot</button>
+            <div className="max-w-4xl">
+              <h2 className="text-xl font-bold mb-6">Gestione Slot</h2>
+
+              <div className="bg-blue-50 border border-blue-200 p-6 rounded-lg mb-6">
+                <h3 className="font-bold text-lg mb-4">Genera Slot Automaticamente</h3>
+                <SlotGenerator onGenerate={() => loadData()} />
               </div>
-              {slots.map((s) => (
-                <div key={s.id} className="border p-3 mb-2 rounded flex justify-between">
-                  <div><div className="font-bold">{s.date}</div><div className="text-sm text-gray-600">{s.time}</div></div>
-                  <button onClick={() => deleteSlot(s.id)} className="text-red-600 text-sm">Elimina</button>
-                </div>
-              ))}
+
+              <div>
+                <h3 className="font-bold text-lg mb-4">Slot Esistenti</h3>
+                {slots.length === 0 ? (
+                  <p className="text-gray-500">Nessuno slot generato</p>
+                ) : (
+                  <div className="space-y-2">
+                    {slots.map((s) => (
+                      <div key={s.id} className={`border p-4 rounded flex justify-between items-center ${s.isBlocked ? "bg-red-50 border-red-300" : "bg-green-50 border-green-300"}`}>
+                        <div>
+                          <div className="font-bold">{s.date}</div>
+                          <div className="text-sm text-gray-600">{s.time} ({s.duration} min)</div>
+                        </div>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => firebaseService.toggleSlotStatus(s.id, !s.isBlocked).then(() => loadData())}
+                            className={`px-4 py-2 rounded text-sm font-bold ${s.isBlocked ? "bg-green-600 text-white" : "bg-red-600 text-white"}`}
+                          >
+                            {s.isBlocked ? "🔓 Attiva" : "🔒 Blocca"}
+                          </button>
+                          <button
+                            onClick={() => {
+                              if (confirm("Eliminare slot?")) {
+                                firebaseService.deleteSlot(s.id).then(() => loadData());
+                              }
+                            }}
+                            className="px-4 py-2 bg-gray-600 text-white rounded text-sm font-bold"
+                          >
+                            ✕ Elimina
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           )}
 
@@ -355,5 +357,115 @@ function QuestionEditor({ q, questions, loadData }: any) {
         </div>
       </div>
     </details>
+  );
+}
+
+function SlotGenerator({ onGenerate }: any) {
+  const [dates, setDates] = useState<string[]>([]);
+  const [dateInput, setDateInput] = useState("");
+  const [morningStart, setMorningStart] = useState("09:00");
+  const [morningEnd, setMorningEnd] = useState("12:30");
+  const [afternoonStart, setAfternoonStart] = useState("14:00");
+  const [afternoonEnd, setAfternoonEnd] = useState("17:30");
+  const [duration, setDuration] = useState("30");
+  const [pause, setPause] = useState("10");
+  const [generating, setGenerating] = useState(false);
+
+  const addDate = () => {
+    if (dateInput && !dates.includes(dateInput)) {
+      setDates([...dates, dateInput]);
+      setDateInput("");
+    }
+  };
+
+  const removeDate = (date: string) => {
+    setDates(dates.filter(d => d !== date));
+  };
+
+  const handleGenerate = async () => {
+    if (dates.length === 0) {
+      alert("Aggiungi almeno una data");
+      return;
+    }
+
+    setGenerating(true);
+    try {
+      await firebaseService.generateSlots({
+        dates,
+        morningStart,
+        morningEnd,
+        afternoonStart,
+        afternoonEnd,
+        duration: parseInt(duration),
+        pause: parseInt(pause),
+        isBlocked: false
+      });
+      alert("✓ Slot generati!");
+      setDates([]);
+      onGenerate();
+    } catch (e) {
+      alert("❌ Errore");
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      <div>
+        <label className="block text-sm font-bold mb-2">Date</label>
+        <div className="flex gap-2 mb-2">
+          <input type="date" value={dateInput} onChange={(e) => setDateInput(e.target.value)} className="flex-1 border p-2 rounded text-sm" />
+          <button onClick={addDate} className="bg-[#0066A1] text-white px-4 py-2 rounded text-sm font-bold">+ Aggiungi</button>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {dates.map(d => (
+            <span key={d} className="bg-[#0066A1] text-white px-3 py-1 rounded text-sm flex items-center gap-2">
+              {d}
+              <button onClick={() => removeDate(d)} className="font-bold">✕</button>
+            </span>
+          ))}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-bold mb-1">Mattina Inizio</label>
+          <input type="time" value={morningStart} onChange={(e) => setMorningStart(e.target.value)} className="w-full border p-2 rounded text-sm" />
+        </div>
+        <div>
+          <label className="block text-sm font-bold mb-1">Mattina Fine</label>
+          <input type="time" value={morningEnd} onChange={(e) => setMorningEnd(e.target.value)} className="w-full border p-2 rounded text-sm" />
+        </div>
+        <div>
+          <label className="block text-sm font-bold mb-1">Pomeriggio Inizio</label>
+          <input type="time" value={afternoonStart} onChange={(e) => setAfternoonStart(e.target.value)} className="w-full border p-2 rounded text-sm" />
+        </div>
+        <div>
+          <label className="block text-sm font-bold mb-1">Pomeriggio Fine</label>
+          <input type="time" value={afternoonEnd} onChange={(e) => setAfternoonEnd(e.target.value)} className="w-full border p-2 rounded text-sm" />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-bold mb-1">Durata Slot (min)</label>
+          <select value={duration} onChange={(e) => setDuration(e.target.value)} className="w-full border p-2 rounded text-sm">
+            <option value="20">20 minuti</option>
+            <option value="30">30 minuti</option>
+            <option value="45">45 minuti</option>
+            <option value="60">60 minuti</option>
+          </select>
+        </div>
+        <div>
+          <label className="block text-sm font-bold mb-1">Pausa Tra Slot (min)</label>
+          <input type="number" value={pause} onChange={(e) => setPause(e.target.value)} className="w-full border p-2 rounded text-sm" />
+        </div>
+      </div>
+
+      <button onClick={handleGenerate} disabled={generating} className="w-full bg-green-600 text-white py-3 rounded font-bold">
+        {generating ? "Generazione..." : "✓ Genera Slot"}
+      </button>
+    </div>
   );
 }
