@@ -29,6 +29,7 @@ export default function LandingPage() {
         cta_text: "Scopri le nostre soluzioni",
         hero_image: "/images/hero.jpg"
       });
+
       setQuestions(questionsData);
       setSlots(slotsData);
     } catch (e) {
@@ -40,7 +41,7 @@ export default function LandingPage() {
 
   const handleBooking = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!bookingForm.name || !bookingForm.email || !selectedSlot) {
       alert("Compila tutti i campi");
       return;
@@ -79,17 +80,17 @@ export default function LandingPage() {
             <img src={settings.hero_image} className="w-full h-full object-cover" alt="hero" />
           )}
         </div>
-        
+
         <div className="relative max-w-6xl mx-auto px-6 py-20 text-center">
-          <motion.h1 
+          <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="text-6xl font-black mb-4"
           >
             {settings?.hero_title}
           </motion.h1>
-          
-          <motion.p 
+
+          <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
@@ -98,7 +99,7 @@ export default function LandingPage() {
             {settings?.hero_subtitle}
           </motion.p>
 
-          <motion.p 
+          <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
@@ -107,7 +108,7 @@ export default function LandingPage() {
             {settings?.hero_date}
           </motion.p>
 
-          <motion.p 
+          <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
@@ -131,7 +132,6 @@ export default function LandingPage() {
       <section className="py-20 bg-[#f5f8fa]">
         <div className="max-w-4xl mx-auto px-6">
           <h2 className="text-4xl font-black text-[#0066A1] mb-12 text-center">Rispondi al Quiz</h2>
-
           <div className="space-y-8 bg-white p-8 rounded-2xl shadow-lg">
             {questions.map((q) => (
               <div key={q.id} className="space-y-4">
@@ -160,8 +160,8 @@ export default function LandingPage() {
       <section className="py-20">
         <div className="max-w-4xl mx-auto px-6">
           <h2 className="text-4xl font-black text-[#0066A1] mb-12 text-center">Prenota il Tuo Slot</h2>
-
           <form onSubmit={handleBooking} className="bg-white p-8 rounded-2xl shadow-lg space-y-6">
+
             {/* Slot Selection */}
             <div>
               <label className="block font-bold mb-4 text-gray-800">Scegli Data e Ora:</label>
