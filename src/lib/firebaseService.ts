@@ -1,130 +1,138 @@
-import { db } from "../firebase";
-import { 
-  doc, 
-  getDoc, 
-  setDoc, 
-  collection, 
-  getDocs, 
-  addDoc, 
-  updateDoc, 
-  deleteDoc,
-  QueryConstraint
-} from "firebase/firestore";
+import { initializeApp } from "firebase/app";
+import { getFirestore, collection, getDocs, getDoc, setDoc, addDoc, deleteDoc, doc, onSnapshot } from "firebase/firestore";
 
-// Settings
-export async function getSettings() {
+const firebaseConfig = {
+  projectId: "landing-total",
+  apiKey: "AIzaSyAUGpj7Fn6WMqCn4rNHaVYxH-K0c6jRb8I",
+};
+
+const app = initializeApp(firebaseConfig);
+export const db = getFirestore(app);
+
+// SETTINGS
+export const getSettings = async () => {
   try {
-    const docSnap = await getDoc(doc(db, "settings", "landing"));
+    const docSnap = await getDoc(doc(db, "settings", "main"));
     return docSnap.exists() ? docSnap.data() : null;
   } catch (e) {
     console.error("Errore getSettings:", e);
     return null;
   }
-}
+};
 
-export async function saveSettings(data: any) {
+export const subscribeToSettings = (callback: (settings: any) => void) => {
   try {
-    await setDoc(doc(db, "settings", "landing"), data);
+    return onSnapshot(doc(db, "settings", "main"), (docSnap) => {
+      if (docSnap.exists()) {
+        callback(docSnap.data());
+      }
+    });
+  } catch (e) {
+    console.error("Errore subscribe:", e);
+    return () => {};
+  }
+};
+
+export const saveSettings = async (settings: any) => {
+  try {
+    await setDoc(doc(db, "settings", "main"), settings);
   } catch (e) {
     console.error("Errore saveSettings:", e);
+    throw e;
   }
-}
+};
 
-// Questions
-export async function getQuestions() {
+// QUESTIONS
+export const getQuestions = async () => {
   try {
     const snapshot = await getDocs(collection(db, "questions"));
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    return snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
   } catch (e) {
     console.error("Errore getQuestions:", e);
     return [];
   }
-}
+};
 
-export async function addQuestion(data: any) {
+export const addQuestion = async (question: any) => {
   try {
-    return await addDoc(collection(db, "questions"), { ...data, id: Date.now() });
+    const docRef = await addDoc(collection(db, "questions"), question);
+    return { ...question, id: docRef.id };
   } catch (e) {
     console.error("Errore addQuestion:", e);
+    throw e;
   }
-}
+};
 
-export async function updateQuestion(id: string, data: any) {
-  try {
-    await updateDoc(doc(db, "questions", id), data);
-  } catch (e) {
-    console.error("Errore updateQuestion:", e);
-  }
-}
-
-export async function deleteQuestion(id: string) {
+export const deleteQuestion = async (id: string) => {
   try {
     await deleteDoc(doc(db, "questions", id));
   } catch (e) {
     console.error("Errore deleteQuestion:", e);
+    throw e;
   }
-}
+};
 
-// Slots
-export async function getSlots() {
+// SLOTS
+export const getSlots = async () => {
   try {
     const snapshot = await getDocs(collection(db, "slots"));
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    return snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
   } catch (e) {
     console.error("Errore getSlots:", e);
     return [];
   }
-}
+};
 
-export async function addSlot(data: any) {
+export const addSlot = async (slot: any) => {
   try {
-    return await addDoc(collection(db, "slots"), { ...data, booked: 0 });
+    const docRef = await addDoc(collection(db, "slots"), slot);
+    return { ...slot, id: docRef.id };
   } catch (e) {
     console.error("Errore addSlot:", e);
+    throw e;
   }
-}
+};
 
-export async function deleteSlot(id: string) {
+export const deleteSlot = async (id: string) => {
   try {
     await deleteDoc(doc(db, "slots", id));
   } catch (e) {
     console.error("Errore deleteSlot:", e);
+    throw e;
   }
-}
+};
 
-// Bookings
-export async function getBookings() {
+// BOOKINGS
+export const getBookings = async () => {
   try {
     const snapshot = await getDocs(collection(db, "bookings"));
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    return snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
   } catch (e) {
     console.error("Errore getBookings:", e);
     return [];
   }
-}
+};
 
-export async function addBooking(data: any) {
+export const addBooking = async (booking: any) => {
   try {
-    return await addDoc(collection(db, "bookings"), { 
-      ...data, 
-      created_at: new Date().toISOString() 
-    });
+    const docRef = await addDoc(collection(db, "bookings"), booking);
+    return { ...booking, id: docRef.id };
   } catch (e) {
     console.error("Errore addBooking:", e);
+    throw e;
   }
-}
+};
 
-// Stats
-export async function getStats() {
+// STATS
+export const getStats = async () => {
   try {
-    const bookings = await getBookings();
-    const paid = bookings.filter((b: any) => b.payment_status === "paid").length;
-    return { 
-      total_bookings: bookings.length, 
-      paid_bookings: paid 
-    };
+    const snapshot = await getDocs(collection(db, "bookings"));
+    const bookings = snapshot.docs.map(doc => doc.data());
+    const total_bookings = bookings.length;
+    const paid_bookings = bookings.filter(b => b.payment_status === "paid").length;
+    return { total_bookings, paid_bookings };
   } catch (e) {
     console.error("Errore getStats:", e);
     return { total_bookings: 0, paid_bookings: 0 };
   }
-}
+};
