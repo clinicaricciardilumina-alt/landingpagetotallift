@@ -125,25 +125,6 @@ export default function AdminDashboard({ setIsAuthenticated }: { setIsAuthentica
     });
   };
 
-  const setCascata = (parentQuestionId: string, parentAnswer: string) => {
-    if (!editForm) return;
-    setEditForm({
-      ...editForm,
-      cascata: {
-        domanda_id: parentQuestionId,
-        risposta: parentAnswer
-      }
-    });
-  };
-
-  const removeCascata = () => {
-    if (!editForm) return;
-    setEditForm({
-      ...editForm,
-      cascata: null
-    });
-  };
-
   const createSlot = async () => {
     if (!slotForm.date) return alert("Scegli una data");
     await firebaseService.addSlot(slotForm);
@@ -170,7 +151,6 @@ export default function AdminDashboard({ setIsAuthenticated }: { setIsAuthentica
 
   if (!settings) return <div className="p-8 text-center font-bold text-gray-500">Caricamento...</div>;
 
-  // Se activeTab è pageBuilder, renderizza solo il PageBuilder
   if (activeTab === "pageBuilder") {
     return (
       <div className="min-h-screen bg-gray-100 flex flex-col">
@@ -221,7 +201,7 @@ export default function AdminDashboard({ setIsAuthenticated }: { setIsAuthentica
         </nav>
 
         <div className="p-6 mt-auto border-t border-white/10 space-y-3">
-          
+          <a
             href="/"
             target="_blank"
             className="flex items-center justify-center gap-2 w-full py-3 bg-white/10 rounded-xl text-xs font-bold hover:bg-white/20 transition-all"
@@ -275,7 +255,6 @@ export default function AdminDashboard({ setIsAuthenticated }: { setIsAuthentica
           )}
 
           <AnimatePresence mode="wait">
-            {/* TAB: CUSTOMIZE */}
             {activeTab === "customize" && (
               <motion.div key="customize" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-10">
                 <div className="bg-white p-8 rounded-2xl shadow-lg space-y-6">
@@ -327,7 +306,6 @@ export default function AdminDashboard({ setIsAuthenticated }: { setIsAuthentica
               </motion.div>
             )}
 
-            {/* TAB: QUESTIONS */}
             {activeTab === "questions" && (
               <motion.div key="questions" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-6">
                 <div className="flex items-center justify-between">
@@ -395,7 +373,6 @@ export default function AdminDashboard({ setIsAuthenticated }: { setIsAuthentica
               </motion.div>
             )}
 
-            {/* TAB: SLOTS */}
             {activeTab === "slots" && (
               <motion.div key="slots" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-6">
                 <h2 className="text-2xl font-black text-[#0066A1]">📅 Gestisci Slot</h2>
@@ -444,7 +421,6 @@ export default function AdminDashboard({ setIsAuthenticated }: { setIsAuthentica
               </motion.div>
             )}
 
-            {/* TAB: BOOKINGS */}
             {activeTab === "bookings" && (
               <motion.div key="bookings" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-6">
                 <h2 className="text-2xl font-black text-[#0066A1]">📋 Prenotazioni</h2>
@@ -479,7 +455,6 @@ export default function AdminDashboard({ setIsAuthenticated }: { setIsAuthentica
               </motion.div>
             )}
 
-            {/* TAB: STATS */}
             {activeTab === "stats" && (
               <motion.div key="stats" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-6">
                 <h2 className="text-2xl font-black text-[#0066A1]">📊 Statistiche</h2>
