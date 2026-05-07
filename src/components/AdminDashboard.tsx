@@ -204,7 +204,7 @@ export default function AdminDashboard({ setIsAuthenticated }: { setIsAuthentica
         </nav>
 
         <div className="p-6 mt-auto border-t border-white/10 space-y-3">
-          <a
+          
             href="/"
             target="_blank"
             className="flex items-center justify-center gap-2 w-full py-3 bg-white/10 rounded-xl text-xs font-bold hover:bg-white/20 transition-all"
@@ -352,6 +352,17 @@ export default function AdminDashboard({ setIsAuthenticated }: { setIsAuthentica
                           className="w-full bg-gray-50 border border-gray-200 rounded-xl p-4 font-medium text-gray-600 resize-none"
                         />
                       </div>
+                      <div>
+                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">Immagine Hero URL</label>
+                        <input
+                          type="text"
+                          value={settings.hero_image || ""}
+                          onChange={(e) => setSettings({...settings, hero_image: e.target.value})}
+                          placeholder="/images/hero.jpg"
+                          className="w-full bg-gray-50 border border-gray-200 rounded-xl p-4 font-bold text-gray-800 outline-none focus:ring-4 focus:ring-[#0066A1]/10"
+                        />
+                        <p className="text-xs text-gray-500 mt-2">Inserisci l'URL dell'immagine del hero</p>
+                      </div>
                     </div>
                   </section>
 
@@ -366,24 +377,25 @@ export default function AdminDashboard({ setIsAuthenticated }: { setIsAuthentica
 
                 <section className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
                   <h3 className="text-lg font-black text-[#0066A1] mb-6 flex items-center gap-2 uppercase">
-                    <ImageIcon size={20} /> Immagini
+                    <ImageIcon size={20} /> Immagini Galleria
                   </h3>
 
-                  <div className="space-y-4 max-h-[600px] overflow-y-auto">
+                  <div className="space-y-4">
                     {availableImages.map(img => {
                       const imageUrls = settings.image_urls || {};
                       const currentUrl = imageUrls[img] || `/images/${img}`;
                       return (
-                        <div key={img} className="border border-gray-200 rounded-lg p-3 space-y-2">
-                          <label className="flex items-center gap-2 cursor-pointer">
+                        <div key={img} className="border border-gray-200 rounded-lg p-4 space-y-3">
+                          <div className="flex items-center gap-3">
                             <input
                               type="checkbox"
                               checked={settings.selected_images.includes(img)}
                               onChange={() => toggleImageSelection(img)}
-                              className="w-4 h-4 rounded border-gray-300 text-[#0066A1]"
+                              className="w-5 h-5 rounded border-gray-300 text-[#0066A1] cursor-pointer"
                             />
-                            <span className="font-bold text-gray-800 text-sm">{img}</span>
-                          </label>
+                            <label className="font-bold text-gray-800 cursor-pointer flex-1">{img}</label>
+                          </div>
+                          
                           <input
                             type="text"
                             value={currentUrl}
@@ -392,11 +404,19 @@ export default function AdminDashboard({ setIsAuthenticated }: { setIsAuthentica
                               setSettings({...settings, image_urls: newUrls});
                             }}
                             placeholder="/images/file.jpg"
-                            className="w-full bg-gray-50 border border-gray-200 rounded p-2 text-xs"
+                            className="w-full bg-gray-50 border border-gray-200 rounded p-3 text-sm font-bold"
                           />
-                          <div className="aspect-video rounded overflow-hidden bg-gray-200">
-                            <img src={currentUrl} className="w-full h-full object-cover" alt={img} onError={(e) => e.currentTarget.style.display = 'none'} />
-                          </div>
+
+                          {currentUrl && (
+                            <div className="aspect-video rounded overflow-hidden bg-gray-200">
+                              <img 
+                                src={currentUrl} 
+                                className="w-full h-full object-cover" 
+                                alt={img}
+                                onError={(e) => e.currentTarget.style.display = 'none'}
+                              />
+                            </div>
+                          )}
                         </div>
                       );
                     })}
