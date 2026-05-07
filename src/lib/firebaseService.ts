@@ -196,3 +196,14 @@ export const getStats = async () => {
     return { total_bookings: 0, paid_bookings: 0 };
   }
 };
+export async function savePageBuilder(pageData: any) {
+  try {
+    const docRef = doc(db, "pageBuilder", "main");
+    await setDoc(docRef, pageData, { merge: true });
+    console.log("Page Builder salvato con successo");
+    return pageData;
+  } catch (error) {
+    console.error("Errore nel salvataggio del Page Builder:", error);
+    throw error;
+  }
+}
