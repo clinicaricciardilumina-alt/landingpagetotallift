@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Save, Image as ImageIcon, Layout, Settings, CheckCircle2, AlertCircle,
+  Image as ImageIcon, Layout, CheckCircle2, AlertCircle,
   Trash2, Plus, Calendar, Users, BarChart3, HelpCircle, ChevronRight,
-  ExternalLink, Clock
+  ExternalLink
 } from "lucide-react";
 import type { LandingSettings, Question } from "../types";
 import { cn } from "../lib/utils";
@@ -128,19 +128,13 @@ export default function AdminDashboard({ setIsAuthenticated }: { setIsAuthentica
     if (!editForm) return;
     setEditForm({
       ...editForm,
-      cascata: {
-        domanda_id: parentQuestionId,
-        risposta: parentAnswer
-      }
+      cascata: { domanda_id: parentQuestionId, risposta: parentAnswer }
     });
   };
 
   const removeCascata = () => {
     if (!editForm) return;
-    setEditForm({
-      ...editForm,
-      cascata: null
-    });
+    setEditForm({ ...editForm, cascata: null });
   };
 
   const createSlot = async () => {
@@ -354,15 +348,14 @@ export default function AdminDashboard({ setIsAuthenticated }: { setIsAuthentica
                         />
                       </div>
                       <div>
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">Immagine Hero URL</label>
+                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">Immagine Hero</label>
                         <input
                           type="text"
                           value={settings.hero_image || ""}
                           onChange={e => setSettings({ ...settings, hero_image: e.target.value })}
                           placeholder="/images/hero.jpg"
-                          className="w-full bg-gray-50 border border-gray-200 rounded-xl p-4 font-bold text-gray-800 outline-none focus:ring-4 focus:ring-[#0066A1]/10"
+                          className="w-full bg-gray-50 border border-gray-200 rounded-xl p-4 font-bold text-gray-800"
                         />
-                        <p className="text-xs text-gray-500 mt-2">Inserisci l'URL dell'immagine del hero</p>
                       </div>
                     </div>
                   </section>
@@ -396,7 +389,6 @@ export default function AdminDashboard({ setIsAuthenticated }: { setIsAuthentica
                             />
                             <label className="font-bold text-gray-800 cursor-pointer flex-1">{img}</label>
                           </div>
-
                           <input
                             type="text"
                             value={currentUrl}
@@ -407,7 +399,6 @@ export default function AdminDashboard({ setIsAuthenticated }: { setIsAuthentica
                             placeholder="/images/file.jpg"
                             className="w-full bg-gray-50 border border-gray-200 rounded p-3 text-sm font-bold"
                           />
-
                           {currentUrl && (
                             <div className="aspect-video rounded overflow-hidden bg-gray-200">
                               <img
@@ -447,7 +438,7 @@ export default function AdminDashboard({ setIsAuthenticated }: { setIsAuthentica
                         </div>
                         {q.cascata && (
                           <div className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded w-fit">
-                            Appare se: domanda {questions.findIndex(x => x.id === q.cascata?.domanda_id) + 1} = &quot;{q.cascata?.risposta}&quot;
+                            Dipende da domanda {questions.findIndex(x => x.id === q.cascata?.domanda_id) + 1}
                           </div>
                         )}
                       </div>
@@ -463,143 +454,6 @@ export default function AdminDashboard({ setIsAuthenticated }: { setIsAuthentica
               </motion.div>
             )}
 
-            {editingQuestion && editForm && (
-              <AnimatePresence>
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
-                  onClick={() => setEditingQuestion(null)}
-                >
-                  <motion.div
-                    initial={{ scale: 0.9, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    onClick={(e) => e.stopPropagation()}
-                    className="bg-white rounded-2xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto"
-                  >
-                    <h2 className="text-2xl font-black text-[#0066A1] mb-6">Modifica Domanda</h2>
-
-                    <div className="space-y-6">
-                      <div>
-                        <label className="block font-bold mb-2 text-gray-800">Testo Domanda</label>
-                        <input
-                          type="text"
-                          value={editForm.text}
-                          onChange={(e) => setEditForm({ ...editForm, text: e.target.value })}
-                          className="w-full border border-gray-200 rounded-lg p-3 font-bold"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block font-bold mb-3 text-gray-800">Opzioni di Risposta</label>
-                        <div className="space-y-2">
-                          {editForm.options.map((opt, idx) => (
-                            <div key={idx} className="flex gap-2">
-                              <input
-                                type="text"
-                                value={opt}
-                                onChange={(e) => updateOption(idx, e.target.value)}
-                                className="flex-1 border border-gray-200 rounded-lg p-3"
-                              />
-                              <button
-                                onClick={() => removeOption(idx)}
-                                className="text-red-500 hover:bg-red-50 p-3 rounded-lg"
-                              >
-                                <Trash2 size={18} />
-                              </button>
-                            </div>
-                          ))}
-                        </div>
-                        <button
-                          onClick={addOption}
-                          className="mt-3 flex items-center gap-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg font-bold text-sm hover:bg-gray-200"
-                        >
-                          <Plus size={16} /> Aggiungi Opzione
-                        </button>
-                      </div>
-
-                      <div className="border-t pt-6">
-                        <label className="block font-bold mb-3 text-gray-800">Configurazione Cascata</label>
-                        <p className="text-sm text-gray-600 mb-3">Questa domanda apparirà solo se l'utente dà una risposta specifica a un'altra domanda</p>
-
-                        {editForm.cascata ? (
-                          <div className="bg-blue-50 p-4 rounded-lg space-y-3 border border-blue-200">
-                            <div className="font-bold text-blue-900">
-                              Appare quando: Domanda {questions.findIndex(x => x.id === editForm.cascata?.domanda_id) + 1} = &quot;{editForm.cascata?.risposta}&quot;
-                            </div>
-                            <button
-                              onClick={removeCascata}
-                              className="text-sm bg-red-500 text-white px-3 py-1 rounded font-bold hover:bg-red-600"
-                            >
-                              Rimuovi Cascata
-                            </button>
-                          </div>
-                        ) : (
-                          <div className="space-y-3">
-                            <div>
-                              <label className="block text-sm font-bold mb-2 text-gray-700">Domanda Genitore</label>
-                              <select
-                                value={editForm.cascata?.domanda_id || ""}
-                                onChange={(e) => {
-                                  if (e.target.value) {
-                                    setCascata(e.target.value, "");
-                                  }
-                                }}
-                                className="w-full border border-gray-200 rounded-lg p-3"
-                              >
-                                <option value="">-- Seleziona una domanda --</option>
-                                {questions
-                                  .filter(q => q.id !== editForm.id)
-                                  .map((q) => (
-                                    <option key={q.id} value={q.id}>
-                                      {questions.indexOf(q) + 1}. {q.text}
-                                    </option>
-                                  ))}
-                              </select>
-                            </div>
-
-                            {editForm.cascata?.domanda_id && (
-                              <div>
-                                <label className="block text-sm font-bold mb-2 text-gray-700">Risposta Richiesta</label>
-                                <select
-                                  value={editForm.cascata?.risposta || ""}
-                                  onChange={(e) => setCascata(editForm.cascata!.domanda_id, e.target.value)}
-                                  className="w-full border border-gray-200 rounded-lg p-3"
-                                >
-                                  <option value="">-- Seleziona una risposta --</option>
-                                  {questions
-                                    .find(q => q.id === editForm.cascata?.domanda_id)
-                                    ?.options.map((opt) => (
-                                      <option key={opt} value={opt}>{opt}</option>
-                                    ))}
-                                </select>
-                              </div>
-                            )}
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="flex gap-3 pt-6 border-t">
-                        <button
-                          onClick={() => setEditingQuestion(null)}
-                          className="flex-1 bg-gray-200 text-gray-800 px-4 py-3 rounded-lg font-bold hover:bg-gray-300"
-                        >
-                          Annulla
-                        </button>
-                        <button
-                          onClick={saveQuestion}
-                          className="flex-1 bg-[#7CB342] text-white px-4 py-3 rounded-lg font-bold hover:bg-[#689F38]"
-                        >
-                          ✓ Salva
-                        </button>
-                      </div>
-                    </div>
-                  </motion.div>
-                </motion.div>
-              </AnimatePresence>
-            )}
-
             {activeTab === "slots" && (
               <motion.div key="slots" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
                 <div className="bg-white p-6 rounded-lg border border-gray-200 space-y-4 max-w-md">
@@ -613,13 +467,11 @@ export default function AdminDashboard({ setIsAuthenticated }: { setIsAuthentica
                 </div>
 
                 <div className="space-y-6">
-                  {Object.entries(
-                    slots.reduce((acc: any, s: any) => {
-                      if (!acc[s.date]) acc[s.date] = [];
-                      acc[s.date].push(s);
-                      return acc;
-                    }, {})
-                  )
+                  {Object.entries(slots.reduce((acc: any, s: any) => {
+                    if (!acc[s.date]) acc[s.date] = [];
+                    acc[s.date].push(s);
+                    return acc;
+                  }, {}))
                     .sort(([dateA], [dateB]) => dateB.localeCompare(dateA))
                     .map(([date, dateSlots]: any) => (
                       <div key={date} className="bg-white rounded-lg border border-gray-200 overflow-hidden">
@@ -686,6 +538,138 @@ export default function AdminDashboard({ setIsAuthenticated }: { setIsAuthentica
           </AnimatePresence>
         </div>
       </main>
+
+      <AnimatePresence>
+        {editingQuestion && editForm && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+            onClick={() => setEditingQuestion(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white rounded-2xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+            >
+              <h2 className="text-2xl font-black text-[#0066A1] mb-6">Modifica Domanda</h2>
+
+              <div className="space-y-6">
+                <div>
+                  <label className="block font-bold mb-2 text-gray-800">Testo Domanda</label>
+                  <input
+                    type="text"
+                    value={editForm.text}
+                    onChange={(e) => setEditForm({ ...editForm, text: e.target.value })}
+                    className="w-full border border-gray-200 rounded-lg p-3 font-bold"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-bold mb-3 text-gray-800">Opzioni di Risposta</label>
+                  <div className="space-y-2">
+                    {editForm.options.map((opt, idx) => (
+                      <div key={idx} className="flex gap-2">
+                        <input
+                          type="text"
+                          value={opt}
+                          onChange={(e) => updateOption(idx, e.target.value)}
+                          className="flex-1 border border-gray-200 rounded-lg p-3"
+                        />
+                        <button
+                          onClick={() => removeOption(idx)}
+                          className="text-red-500 hover:bg-red-50 p-3 rounded-lg"
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                  <button
+                    onClick={addOption}
+                    className="mt-3 flex items-center gap-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg font-bold text-sm hover:bg-gray-200"
+                  >
+                    <Plus size={16} /> Aggiungi Opzione
+                  </button>
+                </div>
+
+                <div className="border-t pt-6">
+                  <label className="block font-bold mb-3 text-gray-800">Configurazione Cascata</label>
+                  <p className="text-sm text-gray-600 mb-3">Questa domanda apparirà solo se l'utente dà una risposta specifica</p>
+
+                  {editForm.cascata ? (
+                    <div className="bg-blue-50 p-4 rounded-lg space-y-3 border border-blue-200">
+                      <div className="font-bold text-blue-900">
+                        Domanda {questions.findIndex(x => x.id === editForm.cascata?.domanda_id) + 1}
+                      </div>
+                      <button
+                        onClick={removeCascata}
+                        className="text-sm bg-red-500 text-white px-3 py-1 rounded font-bold hover:bg-red-600"
+                      >
+                        Rimuovi Cascata
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      <div>
+                        <label className="block text-sm font-bold mb-2 text-gray-700">Domanda Genitore</label>
+                        <select
+                          value={editForm.cascata?.domanda_id || ""}
+                          onChange={(e) => {
+                            if (e.target.value) setCascata(e.target.value, "");
+                          }}
+                          className="w-full border border-gray-200 rounded-lg p-3"
+                        >
+                          <option value="">-- Seleziona --</option>
+                          {questions.filter(q => q.id !== editForm.id).map((q) => (
+                            <option key={q.id} value={q.id}>
+                              {questions.indexOf(q) + 1}. {q.text}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      {editForm.cascata?.domanda_id && (
+                        <div>
+                          <label className="block text-sm font-bold mb-2 text-gray-700">Risposta Richiesta</label>
+                          <select
+                            value={editForm.cascata?.risposta || ""}
+                            onChange={(e) => setCascata(editForm.cascata!.domanda_id, e.target.value)}
+                            className="w-full border border-gray-200 rounded-lg p-3"
+                          >
+                            <option value="">-- Seleziona --</option>
+                            {questions.find(q => q.id === editForm.cascata?.domanda_id)?.options.map((opt) => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex gap-3 pt-6 border-t">
+                  <button
+                    onClick={() => setEditingQuestion(null)}
+                    className="flex-1 bg-gray-200 text-gray-800 px-4 py-3 rounded-lg font-bold hover:bg-gray-300"
+                  >
+                    Annulla
+                  </button>
+                  <button
+                    onClick={saveQuestion}
+                    className="flex-1 bg-[#7CB342] text-white px-4 py-3 rounded-lg font-bold hover:bg-[#689F38]"
+                  >
+                    Salva
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
