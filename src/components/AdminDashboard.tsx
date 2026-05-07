@@ -1,10 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  Image as ImageIcon, Layout, CheckCircle2, AlertCircle,
-  Trash2, Plus, Calendar, Users, BarChart3, HelpCircle, ChevronRight,
-  ExternalLink
-} from "lucide-react";
+import { Image as ImageIcon, Layout, CheckCircle2, AlertCircle, Trash2, Plus, Calendar, Users, BarChart3, HelpCircle, ChevronRight, ExternalLink } from "lucide-react";
 import type { LandingSettings, Question } from "../types";
 import { cn } from "../lib/utils";
 import * as firebaseService from "../lib/firebaseService";
@@ -25,9 +21,7 @@ export default function AdminDashboard({ setIsAuthenticated }: { setIsAuthentica
   const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
   const [editForm, setEditForm] = useState<Question | null>(null);
 
-  useEffect(() => {
-    refreshAllData();
-  }, [activeTab]);
+  useEffect(() => { refreshAllData(); }, [activeTab]);
 
   const refreshAllData = async () => {
     try {
@@ -36,130 +30,35 @@ export default function AdminDashboard({ setIsAuthenticated }: { setIsAuthentica
       const slotsData = await firebaseService.getSlots();
       const bookingsData = await firebaseService.getBookings();
       const statsData = await firebaseService.getStats();
-
-      setSettings(settingsData || {
-        hero_title: "TOTAL LIFT",
-        hero_subtitle: "Total Beauty Day",
-        hero_date: "",
-        hero_description: "",
-        cta_text: "",
-        hero_image: "",
-        selected_images: [],
-        image_urls: {}
-      });
+      setSettings(settingsData || { hero_title: "TOTAL LIFT", hero_subtitle: "Total Beauty Day", hero_date: "", hero_description: "", cta_text: "", hero_image: "", selected_images: [], image_urls: {} });
       setQuestions(questionsData);
       setSlots(slotsData);
       setBookings(bookingsData);
       setStats(statsData);
       setAvailableImages(["hero.jpg", "before-after-1.jpg", "before-after-2.jpg", "before-after-3.jpg", "studio.jpg", "procedure.jpg"]);
-    } catch (e) {
-      console.error("Errore Firebase:", e);
-    }
+    } catch (e) { console.error("Errore Firebase:", e); }
   };
 
   const handleSaveSettings = async () => {
     if (!settings) return;
     setIsSaving(true);
-    try {
-      await firebaseService.saveSettings(settings);
-      setSaveStatus("success");
-    } catch {
-      setSaveStatus("error");
-    } finally {
-      setIsSaving(false);
-      setTimeout(() => setSaveStatus("idle"), 3000);
-    }
+    try { await firebaseService.saveSettings(settings); setSaveStatus("success"); } 
+    catch { setSaveStatus("error"); } 
+    finally { setIsSaving(false); setTimeout(() => setSaveStatus("idle"), 3000); }
   };
 
-  const addQuestion = async () => {
-    await firebaseService.addQuestion({ text: "Nuova Domanda", options: ["Opzione 1", "Opzione 2"], type: "single" });
-    refreshAllData();
-  };
-
-  const deleteQuestion = async (id: any) => {
-    if (!confirm("Eliminare questa domanda?")) return;
-    await firebaseService.deleteQuestion(id);
-    refreshAllData();
-  };
-
-  const openEditQuestion = (q: Question) => {
-    setEditingQuestion(q);
-    setEditForm({ ...q });
-  };
-
-  const saveQuestion = async () => {
-    if (!editForm) return;
-    try {
-      await firebaseService.updateQuestion(editForm.id, editForm);
-      setSaveStatus("success");
-      setEditingQuestion(null);
-      setEditForm(null);
-      refreshAllData();
-    } catch {
-      setSaveStatus("error");
-    }
-    setTimeout(() => setSaveStatus("idle"), 3000);
-  };
-
-  const addOption = () => {
-    if (!editForm) return;
-    setEditForm({
-      ...editForm,
-      options: [...(editForm.options || []), "Nuova opzione"]
-    });
-  };
-
-  const updateOption = (idx: number, value: string) => {
-    if (!editForm) return;
-    const newOptions = [...(editForm.options || [])];
-    newOptions[idx] = value;
-    setEditForm({ ...editForm, options: newOptions });
-  };
-
-  const removeOption = (idx: number) => {
-    if (!editForm) return;
-    setEditForm({
-      ...editForm,
-      options: editForm.options.filter((_, i) => i !== idx)
-    });
-  };
-
-  const setCascata = (parentQuestionId: string, parentAnswer: string) => {
-    if (!editForm) return;
-    setEditForm({
-      ...editForm,
-      cascata: { domanda_id: parentQuestionId, risposta: parentAnswer }
-    });
-  };
-
-  const removeCascata = () => {
-    if (!editForm) return;
-    setEditForm({ ...editForm, cascata: null });
-  };
-
-  const createSlot = async () => {
-    if (!slotForm.date) return alert("Scegli una data");
-    await firebaseService.addSlot(slotForm);
-    setSlotForm({ date: "", time: "09:00", capacity: 4 });
-    refreshAllData();
-  };
-
-  const deleteSlot = async (id: string) => {
-    if (!confirm("Eliminare questo slot?")) return;
-    await firebaseService.deleteSlot(id);
-    refreshAllData();
-  };
-
-  const toggleImageSelection = (img: string) => {
-    if (!settings) return;
-    const isSelected = settings.selected_images.includes(img);
-    setSettings({
-      ...settings,
-      selected_images: isSelected
-        ? settings.selected_images.filter(i => i !== img)
-        : [...settings.selected_images, img]
-    });
-  };
+  const addQuestion = async () => { await firebaseService.addQuestion({ text: "Nuova Domanda", options: ["Opzione 1", "Opzione 2"], type: "single" }); refreshAllData(); };
+  const deleteQuestion = async (id: any) => { if (!confirm("Eliminare?")) return; await firebaseService.deleteQuestion(id); refreshAllData(); };
+  const openEditQuestion = (q: Question) => { setEditingQuestion(q); setEditForm({ ...q }); };
+  const saveQuestion = async () => { if (!editForm) return; try { await firebaseService.updateQuestion(editForm.id, editForm); setSaveStatus("success"); setEditingQuestion(null); setEditForm(null); refreshAllData(); } catch { setSaveStatus("error"); } setTimeout(() => setSaveStatus("idle"), 3000); };
+  const addOption = () => { if (!editForm) return; setEditForm({ ...editForm, options: [...(editForm.options || []), "Nuova opzione"] }); };
+  const updateOption = (idx: number, value: string) => { if (!editForm) return; const newOptions = [...(editForm.options || [])]; newOptions[idx] = value; setEditForm({ ...editForm, options: newOptions }); };
+  const removeOption = (idx: number) => { if (!editForm) return; setEditForm({ ...editForm, options: editForm.options.filter((_, i) => i !== idx) }); };
+  const setCascata = (parentId: string, parentAnswer: string) => { if (!editForm) return; setEditForm({ ...editForm, cascata: { domanda_id: parentId, risposta: parentAnswer } }); };
+  const removeCascata = () => { if (!editForm) return; setEditForm({ ...editForm, cascata: null }); };
+  const createSlot = async () => { if (!slotForm.date) return alert("Scegli data"); await firebaseService.addSlot(slotForm); setSlotForm({ date: "", time: "09:00", capacity: 4 }); refreshAllData(); };
+  const deleteSlot = async (id: string) => { if (!confirm("Eliminare?")) return; await firebaseService.deleteSlot(id); refreshAllData(); };
+  const toggleImageSelection = (img: string) => { if (!settings) return; const isSelected = settings.selected_images.includes(img); setSettings({ ...settings, selected_images: isSelected ? settings.selected_images.filter(i => i !== img) : [...settings.selected_images, img] }); };
 
   if (!settings) return <div className="p-8 text-center font-bold text-gray-500">Caricamento...</div>;
 
@@ -167,55 +66,20 @@ export default function AdminDashboard({ setIsAuthenticated }: { setIsAuthentica
     <div className="min-h-screen bg-[#f5f8fa] flex flex-col md:flex-row pb-32 md:pb-0">
       <aside className="w-full md:w-64 bg-gradient-to-b from-[#0066A1] to-[#004d7a] text-white flex flex-col shadow-2xl shrink-0 z-30">
         <div className="p-8 border-b border-white/10">
-          <h2 className="text-xl font-black tracking-tighter flex items-center gap-2">
-            <Layout size={24} /> RICCIARDI
-          </h2>
+          <h2 className="text-xl font-black tracking-tighter flex items-center gap-2"><Layout size={24} /> RICCIARDI</h2>
           <p className="text-[10px] opacity-60 font-black uppercase tracking-widest mt-1">Admin Panel</p>
         </div>
-
         <nav className="flex-1 p-4 space-y-2 mt-4">
-          {[
-            { id: "customize" as Tab, label: "Personalizza Landing", icon: Layout },
-            { id: "questions" as Tab, label: "Gestisci Domande", icon: HelpCircle },
-            { id: "slots" as Tab, label: "Gestisci Slot", icon: Calendar },
-            { id: "bookings" as Tab, label: "Prenotazioni", icon: Users },
-            { id: "stats" as Tab, label: "Statistiche", icon: BarChart3 }
-          ].map(item => (
-            <button
-              key={item.id}
-              onClick={() => setActiveTab(item.id)}
-              className={cn(
-                "w-full flex items-center gap-3 p-4 rounded-xl font-bold transition-all transform hover:translate-x-1",
-                activeTab === item.id
-                  ? "bg-white/20 text-white shadow-lg border-l-4 border-[#96C8E6]"
-                  : "hover:bg-white/5 text-white/70"
-              )}
-            >
+          {[{ id: "customize" as Tab, label: "Personalizza Landing", icon: Layout }, { id: "questions" as Tab, label: "Gestisci Domande", icon: HelpCircle }, { id: "slots" as Tab, label: "Gestisci Slot", icon: Calendar }, { id: "bookings" as Tab, label: "Prenotazioni", icon: Users }, { id: "stats" as Tab, label: "Statistiche", icon: BarChart3 }].map(item => (
+            <button key={item.id} onClick={() => setActiveTab(item.id)} className={cn("w-full flex items-center gap-3 p-4 rounded-xl font-bold transition-all transform hover:translate-x-1", activeTab === item.id ? "bg-white/20 text-white shadow-lg border-l-4 border-[#96C8E6]" : "hover:bg-white/5 text-white/70")}>
               <item.icon size={20} />
               <span className="text-sm">{item.label}</span>
             </button>
           ))}
         </nav>
-
         <div className="p-6 mt-auto border-t border-white/10 space-y-3">
-          
-            href="/"
-            target="_blank"
-            rel="noreferrer"
-            className="flex items-center justify-center gap-2 w-full py-3 bg-white/10 rounded-xl text-xs font-bold hover:bg-white/20 transition-all"
-          >
-            Visualizza Landing <ExternalLink size={14} />
-          </a>
-          <button
-            onClick={() => {
-              localStorage.removeItem("adminAuthenticated");
-              setIsAuthenticated(false);
-              window.location.href = "/admin";
-            }}
-            className="flex items-center justify-center gap-2 w-full py-3 bg-red-600 rounded-xl text-xs font-bold hover:bg-red-700 transition-all"
-          >
-            Logout <ChevronRight size={14} />
-          </button>
+          <a href="/" target="_blank" rel="noreferrer" className="flex items-center justify-center gap-2 w-full py-3 bg-white/10 rounded-xl text-xs font-bold hover:bg-white/20 transition-all">Visualizza Landing <ExternalLink size={14} /></a>
+          <button onClick={() => { localStorage.removeItem("adminAuthenticated"); setIsAuthenticated(false); window.location.href = "/admin"; }} className="flex items-center justify-center gap-2 w-full py-3 bg-red-600 rounded-xl text-xs font-bold hover:bg-red-700 transition-all">Logout <ChevronRight size={14} /></button>
         </div>
       </aside>
 
@@ -226,450 +90,144 @@ export default function AdminDashboard({ setIsAuthenticated }: { setIsAuthentica
               <h1 className="text-4xl font-black text-gray-900 tracking-tight">Admin Dashboard</h1>
               <p className="text-gray-500 font-medium">Studio Dentistico Ricciardi</p>
             </div>
-            <a href="/" className="bg-[#0066A1] text-white px-6 py-3 rounded-xl font-bold hover:bg-[#004d7a] transition-all flex items-center gap-2 shadow-lg text-sm">
-              <ExternalLink size={16} /> Visualizza Landing
-            </a>
+            <a href="/" className="bg-[#0066A1] text-white px-6 py-3 rounded-xl font-bold hover:bg-[#004d7a] transition-all flex items-center gap-2 shadow-lg text-sm"><ExternalLink size={16} /> Visualizza Landing</a>
           </header>
 
           {stats && (
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-              <div className="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-[#0066A1] hover:shadow-md transition-all">
-                <div className="text-gray-400 font-bold text-[10px] uppercase tracking-widest mb-1">Prenotazioni</div>
-                <div className="text-3xl font-black text-[#0066A1]">{stats.total_bookings}</div>
-              </div>
-              <div className="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-green-500 hover:shadow-md transition-all">
-                <div className="text-gray-400 font-bold text-[10px] uppercase tracking-widest mb-1">Pagate</div>
-                <div className="text-3xl font-black text-green-600">{stats.paid_bookings}</div>
-              </div>
-              <div className="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-blue-400 hover:shadow-md transition-all">
-                <div className="text-gray-400 font-bold text-[10px] uppercase tracking-widest mb-1">Incasso</div>
-                <div className="text-3xl font-black text-blue-500">{stats.paid_bookings * 67}€</div>
-              </div>
-              <div className="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-orange-400 hover:shadow-md transition-all">
-                <div className="text-gray-400 font-bold text-[10px] uppercase tracking-widest mb-1">Conversion</div>
-                <div className="text-3xl font-black text-orange-500">{stats.total_bookings > 0 ? Math.round((stats.paid_bookings / stats.total_bookings) * 100) : 0}%</div>
-              </div>
+              <div className="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-[#0066A1]"><div className="text-gray-400 font-bold text-[10px] uppercase">Prenotazioni</div><div className="text-3xl font-black text-[#0066A1]">{stats.total_bookings}</div></div>
+              <div className="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-green-500"><div className="text-gray-400 font-bold text-[10px] uppercase">Pagate</div><div className="text-3xl font-black text-green-600">{stats.paid_bookings}</div></div>
+              <div className="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-blue-400"><div className="text-gray-400 font-bold text-[10px] uppercase">Incasso</div><div className="text-3xl font-black text-blue-500">{stats.paid_bookings * 67}€</div></div>
+              <div className="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-orange-400"><div className="text-gray-400 font-bold text-[10px] uppercase">Conversion</div><div className="text-3xl font-black text-orange-500">{stats.total_bookings > 0 ? Math.round((stats.paid_bookings / stats.total_bookings) * 100) : 0}%</div></div>
             </div>
           )}
 
           <div className="flex items-center justify-between border-b pb-6">
-            <div className="flex gap-4">
-              {[
-                { id: "customize", label: "🎨 Personalizza" },
-                { id: "questions", label: "❓ Domande" },
-                { id: "slots", label: "📅 Slot" },
-                { id: "bookings", label: "👥 Prenotazioni" },
-                { id: "stats", label: "📈 Statistiche" }
-              ].map(t => (
-                <button
-                  key={t.id}
-                  onClick={() => setActiveTab(t.id as Tab)}
-                  className={cn(
-                    "px-4 py-2 rounded-lg text-sm font-bold transition-all",
-                    activeTab === t.id ? "bg-[#E8F4F8] text-[#0066A1]" : "text-gray-400 hover:text-gray-600"
-                  )}
-                >
-                  {t.label}
-                </button>
-              ))}
-            </div>
-            <AnimatePresence>
-              {(saveStatus === "success" || saveStatus === "error") && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0 }}
-                  className={cn(
-                    "flex items-center gap-2 px-4 py-2 rounded-full font-bold text-xs shadow-lg",
-                    saveStatus === "success" ? "bg-green-500 text-white" : "bg-red-500 text-white"
-                  )}
-                >
-                  {saveStatus === "success" ? <CheckCircle2 size={14} /> : <AlertCircle size={14} />}
-                  {saveStatus === "success" ? "Salvato!" : "Errore"}
-                </motion.div>
-              )}
-            </AnimatePresence>
+            <div className="flex gap-4">{[{ id: "customize", label: "🎨 Personalizza" }, { id: "questions", label: "❓ Domande" }, { id: "slots", label: "📅 Slot" }, { id: "bookings", label: "👥 Prenotazioni" }, { id: "stats", label: "📈 Statistiche" }].map(t => (
+              <button key={t.id} onClick={() => setActiveTab(t.id as Tab)} className={cn("px-4 py-2 rounded-lg text-sm font-bold transition-all", activeTab === t.id ? "bg-[#E8F4F8] text-[#0066A1]" : "text-gray-400 hover:text-gray-600")}>{t.label}</button>
+            ))}</div>
+            <AnimatePresence>{(saveStatus === "success" || saveStatus === "error") && (<motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} className={cn("flex items-center gap-2 px-4 py-2 rounded-full font-bold text-xs shadow-lg", saveStatus === "success" ? "bg-green-500 text-white" : "bg-red-500 text-white")}>{saveStatus === "success" ? <CheckCircle2 size={14} /> : <AlertCircle size={14} />}{saveStatus === "success" ? "Salvato!" : "Errore"}</motion.div>)}</AnimatePresence>
           </div>
 
           <AnimatePresence mode="wait">
-            {activeTab === "customize" && (
-              <motion.div
-                key="customize"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                className="grid grid-cols-1 lg:grid-cols-2 gap-10"
-              >
-                <div className="space-y-8">
-                  <section className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
-                    <h3 className="text-lg font-black text-[#0066A1] mb-6 flex items-center gap-2 uppercase tracking-widest">
-                      <Layout size={20} /> Testi Hero
-                    </h3>
-                    <div className="space-y-6">
-                      <div>
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">Titolo</label>
-                        <input
-                          value={settings.hero_title}
-                          onChange={e => setSettings({ ...settings, hero_title: e.target.value })}
-                          className="w-full bg-gray-50 border border-gray-200 rounded-xl p-4 font-bold text-gray-800 outline-none focus:ring-4 focus:ring-[#0066A1]/10"
-                        />
-                      </div>
-                      <div>
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">Sottotitolo</label>
-                        <input
-                          value={settings.hero_subtitle}
-                          onChange={e => setSettings({ ...settings, hero_subtitle: e.target.value })}
-                          className="w-full bg-gray-50 border border-gray-200 rounded-xl p-4 font-bold text-gray-800 outline-none focus:ring-4 focus:ring-[#0066A1]/10"
-                        />
-                      </div>
-                      <div>
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">Data</label>
-                        <input
-                          value={settings.hero_date}
-                          onChange={e => setSettings({ ...settings, hero_date: e.target.value })}
-                          className="w-full bg-gray-50 border border-gray-200 rounded-xl p-4 font-bold"
-                        />
-                      </div>
-                      <div>
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">CTA</label>
-                        <input
-                          value={settings.cta_text}
-                          onChange={e => setSettings({ ...settings, cta_text: e.target.value })}
-                          className="w-full bg-gray-50 border border-gray-200 rounded-xl p-4 font-bold"
-                        />
-                      </div>
-                      <div>
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">Descrizione</label>
-                        <textarea
-                          rows={4}
-                          value={settings.hero_description}
-                          onChange={e => setSettings({ ...settings, hero_description: e.target.value })}
-                          className="w-full bg-gray-50 border border-gray-200 rounded-xl p-4 font-medium text-gray-600 resize-none"
-                        />
-                      </div>
-                      <div>
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">Immagine Hero</label>
-                        <input
-                          type="text"
-                          value={settings.hero_image || ""}
-                          onChange={e => setSettings({ ...settings, hero_image: e.target.value })}
-                          placeholder="/images/hero.jpg"
-                          className="w-full bg-gray-50 border border-gray-200 rounded-xl p-4 font-bold text-gray-800"
-                        />
-                      </div>
-                    </div>
-                  </section>
-
-                  <button
-                    onClick={handleSaveSettings}
-                    disabled={isSaving}
-                    className="w-full bg-[#7CB342] text-white py-5 rounded-2xl font-black text-lg shadow-xl hover:bg-[#689F38] disabled:opacity-50"
-                  >
-                    {isSaving ? "Salvataggio..." : "✓ Salva Impostazioni"}
-                  </button>
-                </div>
-
+            {activeTab === "customize" && (<motion.div key="customize" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+              <div className="space-y-8">
                 <section className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
-                  <h3 className="text-lg font-black text-[#0066A1] mb-6 flex items-center gap-2 uppercase">
-                    <ImageIcon size={20} /> Immagini Galleria
-                  </h3>
-
-                  <div className="space-y-4">
-                    {availableImages.map(img => {
-                      const imageUrls = settings.image_urls || {};
-                      const currentUrl = imageUrls[img] || `/images/${img}`;
-                      return (
-                        <div key={img} className="border border-gray-200 rounded-lg p-4 space-y-3">
-                          <div className="flex items-center gap-3">
-                            <input
-                              type="checkbox"
-                              checked={settings.selected_images.includes(img)}
-                              onChange={() => toggleImageSelection(img)}
-                              className="w-5 h-5 rounded border-gray-300 text-[#0066A1] cursor-pointer"
-                            />
-                            <label className="font-bold text-gray-800 cursor-pointer flex-1">{img}</label>
-                          </div>
-                          <input
-                            type="text"
-                            value={currentUrl}
-                            onChange={(e) => {
-                              const newUrls = { ...imageUrls, [img]: e.target.value };
-                              setSettings({ ...settings, image_urls: newUrls });
-                            }}
-                            placeholder="/images/file.jpg"
-                            className="w-full bg-gray-50 border border-gray-200 rounded p-3 text-sm font-bold"
-                          />
-                          {currentUrl && (
-                            <div className="aspect-video rounded overflow-hidden bg-gray-200">
-                              <img
-                                src={currentUrl}
-                                className="w-full h-full object-cover"
-                                alt={img}
-                                onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                              />
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
+                  <h3 className="text-lg font-black text-[#0066A1] mb-6 flex items-center gap-2"><Layout size={20} /> TESTI HERO</h3>
+                  <div className="space-y-6">
+                    <div><label className="text-[10px] font-black text-gray-400 uppercase mb-2 block">Titolo</label><input value={settings.hero_title} onChange={e => setSettings({ ...settings, hero_title: e.target.value })} className="w-full bg-gray-50 border border-gray-200 rounded-xl p-4 font-bold" /></div>
+                    <div><label className="text-[10px] font-black text-gray-400 uppercase mb-2 block">Sottotitolo</label><input value={settings.hero_subtitle} onChange={e => setSettings({ ...settings, hero_subtitle: e.target.value })} className="w-full bg-gray-50 border border-gray-200 rounded-xl p-4 font-bold" /></div>
+                    <div><label className="text-[10px] font-black text-gray-400 uppercase mb-2 block">Data</label><input value={settings.hero_date} onChange={e => setSettings({ ...settings, hero_date: e.target.value })} className="w-full bg-gray-50 border border-gray-200 rounded-xl p-4 font-bold" /></div>
+                    <div><label className="text-[10px] font-black text-gray-400 uppercase mb-2 block">CTA</label><input value={settings.cta_text} onChange={e => setSettings({ ...settings, cta_text: e.target.value })} className="w-full bg-gray-50 border border-gray-200 rounded-xl p-4 font-bold" /></div>
+                    <div><label className="text-[10px] font-black text-gray-400 uppercase mb-2 block">Descrizione</label><textarea rows={4} value={settings.hero_description} onChange={e => setSettings({ ...settings, hero_description: e.target.value })} className="w-full bg-gray-50 border border-gray-200 rounded-xl p-4 font-medium text-gray-600 resize-none" /></div>
+                    <div><label className="text-[10px] font-black text-gray-400 uppercase mb-2 block">Immagine Hero</label><input type="text" value={settings.hero_image || ""} onChange={e => setSettings({ ...settings, hero_image: e.target.value })} placeholder="/images/hero.jpg" className="w-full bg-gray-50 border border-gray-200 rounded-xl p-4 font-bold" /></div>
                   </div>
                 </section>
-              </motion.div>
-            )}
-
-            {activeTab === "questions" && (
-              <motion.div key="questions" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
-                <div className="flex justify-between items-center">
-                  <h3 className="text-xl font-bold text-[#0066A1]">Domande</h3>
-                  <button onClick={addQuestion} className="flex items-center gap-2 bg-[#0066A1] text-white px-4 py-2 rounded-lg font-bold text-sm">
-                    <Plus size={16} /> Nuova
-                  </button>
-                </div>
-                {questions.map((q, idx) => (
-                  <div key={q.id} className="bg-white p-6 rounded-lg border border-gray-200 hover:border-[#0066A1] cursor-pointer transition-all" onClick={() => openEditQuestion(q)}>
-                    <div className="flex gap-4">
-                      <div className="w-8 h-8 bg-[#E8F4F8] text-[#0066A1] font-bold rounded flex items-center justify-center shrink-0">{idx + 1}</div>
-                      <div className="flex-1 space-y-2">
-                        <div className="font-bold text-gray-800">{q.text}</div>
-                        <div className="flex flex-wrap gap-1">
-                          {q.options.map((opt, i) => (
-                            <span key={i} className="bg-gray-100 px-2 py-1 rounded text-xs text-gray-600">{opt}</span>
-                          ))}
-                        </div>
-                        {q.cascata && (
-                          <div className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded w-fit">
-                            Dipende da domanda {questions.findIndex(x => x.id === q.cascata?.domanda_id) + 1}
-                          </div>
-                        )}
-                      </div>
-                      <button
-                        onClick={(e) => { e.stopPropagation(); deleteQuestion(q.id); }}
-                        className="text-red-500 hover:bg-red-50 p-2 rounded"
-                      >
-                        <Trash2 size={18} />
-                      </button>
+                <button onClick={handleSaveSettings} disabled={isSaving} className="w-full bg-[#7CB342] text-white py-5 rounded-2xl font-black text-lg shadow-xl hover:bg-[#689F38] disabled:opacity-50">{isSaving ? "Salvataggio..." : "Salva Impostazioni"}</button>
+              </div>
+              <section className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
+                <h3 className="text-lg font-black text-[#0066A1] mb-6 flex items-center gap-2"><ImageIcon size={20} /> GALLERIA IMMAGINI</h3>
+                <div className="space-y-4">{availableImages.map(img => { const imageUrls = settings.image_urls || {}; const currentUrl = imageUrls[img] || `/images/${img}`; return (
+                  <div key={img} className="border border-gray-200 rounded-lg p-4 space-y-3">
+                    <div className="flex items-center gap-3">
+                      <input type="checkbox" checked={settings.selected_images.includes(img)} onChange={() => toggleImageSelection(img)} className="w-5 h-5 rounded cursor-pointer" />
+                      <label className="font-bold text-gray-800 cursor-pointer flex-1">{img}</label>
                     </div>
+                    <input type="text" value={currentUrl} onChange={e => { const newUrls = { ...imageUrls, [img]: e.target.value }; setSettings({ ...settings, image_urls: newUrls }); }} placeholder="/images/file.jpg" className="w-full bg-gray-50 border border-gray-200 rounded p-3 text-sm font-bold" />
+                    {currentUrl && (<div className="aspect-video rounded overflow-hidden bg-gray-200"><img src={currentUrl} className="w-full h-full object-cover" alt={img} onError={(e) => { e.currentTarget.style.display = 'none'; }} /></div>)}
                   </div>
-                ))}
-              </motion.div>
-            )}
+                ); })}</div>
+              </section>
+            </motion.div>)}
 
-            {activeTab === "slots" && (
-              <motion.div key="slots" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
-                <div className="bg-white p-6 rounded-lg border border-gray-200 space-y-4 max-w-md">
-                  <h3 className="font-black text-[#0066A1]">Nuovo Slot</h3>
-                  <input type="date" value={slotForm.date} onChange={e => setSlotForm({ ...slotForm, date: e.target.value })} className="w-full border border-gray-200 rounded p-2" />
-                  <select value={slotForm.time} onChange={e => setSlotForm({ ...slotForm, time: e.target.value })} className="w-full border border-gray-200 rounded p-2">
-                    {["09:00", "10:00", "11:00", "14:00", "15:00", "16:00"].map(t => <option key={t}>{t}</option>)}
-                  </select>
-                  <input type="number" value={slotForm.capacity} onChange={e => setSlotForm({ ...slotForm, capacity: parseInt(e.target.value) })} className="w-full border border-gray-200 rounded p-2" />
-                  <button onClick={createSlot} className="w-full bg-[#0066A1] text-white py-2 rounded font-bold">Crea</button>
+            {activeTab === "questions" && (<motion.div key="questions" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
+              <div className="flex justify-between items-center">
+                <h3 className="text-xl font-bold text-[#0066A1]">Domande</h3>
+                <button onClick={addQuestion} className="flex items-center gap-2 bg-[#0066A1] text-white px-4 py-2 rounded-lg font-bold text-sm"><Plus size={16} /> Nuova</button>
+              </div>
+              {questions.map((q, idx) => (
+                <div key={q.id} className="bg-white p-6 rounded-lg border border-gray-200 hover:border-[#0066A1] cursor-pointer transition-all" onClick={() => openEditQuestion(q)}>
+                  <div className="flex gap-4">
+                    <div className="w-8 h-8 bg-[#E8F4F8] text-[#0066A1] font-bold rounded flex items-center justify-center">{idx + 1}</div>
+                    <div className="flex-1 space-y-2">
+                      <div className="font-bold text-gray-800">{q.text}</div>
+                      <div className="flex flex-wrap gap-1">{q.options.map((opt, i) => (<span key={i} className="bg-gray-100 px-2 py-1 rounded text-xs text-gray-600">{opt}</span>))}</div>
+                      {q.cascata && (<div className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded w-fit">Dipende da domanda {questions.findIndex(x => x.id === q.cascata?.domanda_id) + 1}</div>)}
+                    </div>
+                    <button onClick={(e) => { e.stopPropagation(); deleteQuestion(q.id); }} className="text-red-500 hover:bg-red-50 p-2 rounded"><Trash2 size={18} /></button>
+                  </div>
                 </div>
+              ))}
+            </motion.div>)}
 
-                <div className="space-y-6">
-                  {Object.entries(slots.reduce((acc: any, s: any) => {
-                    if (!acc[s.date]) acc[s.date] = [];
-                    acc[s.date].push(s);
-                    return acc;
-                  }, {}))
-                    .sort(([dateA], [dateB]) => dateB.localeCompare(dateA))
-                    .map(([date, dateSlots]: any) => (
-                      <div key={date} className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-                        <div className="bg-gradient-to-r from-[#0066A1] to-[#004d7a] text-white p-6">
-                          <h3 className="text-3xl font-black">{date}</h3>
-                        </div>
-                        <div className="p-6 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                          {dateSlots.map((s: any) => (
-                            <div key={s.id} className="bg-gray-50 border border-gray-200 rounded-lg p-3 space-y-2">
-                              <div className="text-center font-black text-lg text-[#0066A1]">{s.time}</div>
-                              <div className="flex gap-2 flex-col text-xs">
-                                <button className="bg-green-500 text-white py-1 rounded font-bold hover:bg-green-600">Attiva</button>
-                                <button className="bg-yellow-500 text-white py-1 rounded font-bold hover:bg-yellow-600">Disattiva</button>
-                                <button onClick={() => deleteSlot(s.id)} className="bg-red-500 text-white py-1 rounded font-bold hover:bg-red-600">Elimina</button>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
+            {activeTab === "slots" && (<motion.div key="slots" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
+              <div className="bg-white p-6 rounded-lg border border-gray-200 space-y-4 max-w-md">
+                <h3 className="font-black text-[#0066A1]">Nuovo Slot</h3>
+                <input type="date" value={slotForm.date} onChange={e => setSlotForm({ ...slotForm, date: e.target.value })} className="w-full border border-gray-200 rounded p-2" />
+                <select value={slotForm.time} onChange={e => setSlotForm({ ...slotForm, time: e.target.value })} className="w-full border border-gray-200 rounded p-2">{["09:00", "10:00", "11:00", "14:00", "15:00", "16:00"].map(t => <option key={t}>{t}</option>)}</select>
+                <input type="number" value={slotForm.capacity} onChange={e => setSlotForm({ ...slotForm, capacity: parseInt(e.target.value) })} className="w-full border border-gray-200 rounded p-2" />
+                <button onClick={createSlot} className="w-full bg-[#0066A1] text-white py-2 rounded font-bold">Crea</button>
+              </div>
+              <div className="space-y-6">{Object.entries(slots.reduce((acc: any, s: any) => { if (!acc[s.date]) acc[s.date] = []; acc[s.date].push(s); return acc; }, {})).sort(([a], [b]) => b.localeCompare(a)).map(([date, dateSlots]: any) => (
+                <div key={date} className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                  <div className="bg-gradient-to-r from-[#0066A1] to-[#004d7a] text-white p-6"><h3 className="text-3xl font-black">{date}</h3></div>
+                  <div className="p-6 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">{dateSlots.map((s: any) => (
+                    <div key={s.id} className="bg-gray-50 border border-gray-200 rounded-lg p-3 space-y-2">
+                      <div className="text-center font-black text-lg text-[#0066A1]">{s.time}</div>
+                      <div className="flex gap-2 flex-col text-xs">
+                        <button className="bg-green-500 text-white py-1 rounded font-bold hover:bg-green-600">Attiva</button>
+                        <button className="bg-yellow-500 text-white py-1 rounded font-bold hover:bg-yellow-600">Disattiva</button>
+                        <button onClick={() => deleteSlot(s.id)} className="bg-red-500 text-white py-1 rounded font-bold hover:bg-red-600">Elimina</button>
                       </div>
-                    ))}
+                    </div>
+                  ))}</div>
                 </div>
-              </motion.div>
-            )}
+              ))}</div>
+            </motion.div>)}
 
-            {activeTab === "bookings" && (
-              <motion.div key="bookings" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-                <table className="w-full">
-                  <thead className="bg-gray-50 border-b">
-                    <tr>
-                      <th className="px-4 py-3 text-left text-xs font-bold text-gray-600">Nome</th>
-                      <th className="px-4 py-3 text-left text-xs font-bold text-gray-600">Data</th>
-                      <th className="px-4 py-3 text-left text-xs font-bold text-gray-600">Stato</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {bookings.map(b => (
-                      <tr key={b.id} className="border-b hover:bg-gray-50">
-                        <td className="px-4 py-3"><div className="font-bold">{b.name}</div><div className="text-xs text-gray-500">{b.email}</div></td>
-                        <td className="px-4 py-3"><div className="font-bold text-[#0066A1]">{b.date}</div><div className="text-xs text-gray-500">{b.time}</div></td>
-                        <td className="px-4 py-3"><span className={cn("px-2 py-1 rounded text-xs font-bold", b.payment_status === "paid" ? "bg-green-100 text-green-700" : "bg-orange-100 text-orange-700")}>{b.payment_status === "paid" ? "Pagato" : "In attesa"}</span></td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </motion.div>
-            )}
+            {activeTab === "bookings" && (<motion.div key="bookings" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+              <table className="w-full">
+                <thead className="bg-gray-50 border-b"><tr><th className="px-4 py-3 text-left text-xs font-bold text-gray-600">Nome</th><th className="px-4 py-3 text-left text-xs font-bold text-gray-600">Data</th><th className="px-4 py-3 text-left text-xs font-bold text-gray-600">Stato</th></tr></thead>
+                <tbody>{bookings.map(b => (
+                  <tr key={b.id} className="border-b hover:bg-gray-50">
+                    <td className="px-4 py-3"><div className="font-bold">{b.name}</div><div className="text-xs text-gray-500">{b.email}</div></td>
+                    <td className="px-4 py-3"><div className="font-bold text-[#0066A1]">{b.date}</div><div className="text-xs text-gray-500">{b.time}</div></td>
+                    <td className="px-4 py-3"><span className={cn("px-2 py-1 rounded text-xs font-bold", b.payment_status === "paid" ? "bg-green-100 text-green-700" : "bg-orange-100 text-orange-700")}>{b.payment_status === "paid" ? "Pagato" : "In attesa"}</span></td>
+                  </tr>
+                ))}</tbody>
+              </table>
+            </motion.div>)}
 
-            {activeTab === "stats" && stats && (
-              <motion.div key="stats" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="bg-white p-6 rounded-lg border border-gray-200 text-center">
-                  <div className="text-3xl font-black text-gray-900">{stats.total_bookings}</div>
-                  <div className="text-xs text-gray-500 mt-1">Prenotazioni</div>
-                </div>
-                <div className="bg-white p-6 rounded-lg border border-gray-200 text-center">
-                  <div className="text-3xl font-black text-green-600">{stats.paid_bookings}</div>
-                  <div className="text-xs text-gray-500 mt-1">Pagate</div>
-                </div>
-                <div className="bg-white p-6 rounded-lg border border-gray-200 text-center">
-                  <div className="text-3xl font-black text-blue-600">{stats.paid_bookings * 67}€</div>
-                  <div className="text-xs text-gray-500 mt-1">Incasso</div>
-                </div>
-              </motion.div>
-            )}
+            {activeTab === "stats" && stats && (<motion.div key="stats" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="bg-white p-6 rounded-lg border border-gray-200 text-center"><div className="text-3xl font-black text-gray-900">{stats.total_bookings}</div><div className="text-xs text-gray-500 mt-1">Prenotazioni</div></div>
+              <div className="bg-white p-6 rounded-lg border border-gray-200 text-center"><div className="text-3xl font-black text-green-600">{stats.paid_bookings}</div><div className="text-xs text-gray-500 mt-1">Pagate</div></div>
+              <div className="bg-white p-6 rounded-lg border border-gray-200 text-center"><div className="text-3xl font-black text-blue-600">{stats.paid_bookings * 67}€</div><div className="text-xs text-gray-500 mt-1">Incasso</div></div>
+            </motion.div>)}
           </AnimatePresence>
         </div>
       </main>
 
-      <AnimatePresence>
-        {editingQuestion && editForm && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
-            onClick={() => setEditingQuestion(null)}
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              onClick={(e) => e.stopPropagation()}
-              className="bg-white rounded-2xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto"
-            >
-              <h2 className="text-2xl font-black text-[#0066A1] mb-6">Modifica Domanda</h2>
-
-              <div className="space-y-6">
-                <div>
-                  <label className="block font-bold mb-2 text-gray-800">Testo Domanda</label>
-                  <input
-                    type="text"
-                    value={editForm.text}
-                    onChange={(e) => setEditForm({ ...editForm, text: e.target.value })}
-                    className="w-full border border-gray-200 rounded-lg p-3 font-bold"
-                  />
-                </div>
-
-                <div>
-                  <label className="block font-bold mb-3 text-gray-800">Opzioni di Risposta</label>
-                  <div className="space-y-2">
-                    {editForm.options.map((opt, idx) => (
-                      <div key={idx} className="flex gap-2">
-                        <input
-                          type="text"
-                          value={opt}
-                          onChange={(e) => updateOption(idx, e.target.value)}
-                          className="flex-1 border border-gray-200 rounded-lg p-3"
-                        />
-                        <button
-                          onClick={() => removeOption(idx)}
-                          className="text-red-500 hover:bg-red-50 p-3 rounded-lg"
-                        >
-                          <Trash2 size={18} />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                  <button
-                    onClick={addOption}
-                    className="mt-3 flex items-center gap-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg font-bold text-sm hover:bg-gray-200"
-                  >
-                    <Plus size={16} /> Aggiungi Opzione
-                  </button>
-                </div>
-
-                <div className="border-t pt-6">
-                  <label className="block font-bold mb-3 text-gray-800">Configurazione Cascata</label>
-                  <p className="text-sm text-gray-600 mb-3">Questa domanda apparirà solo se l'utente dà una risposta specifica</p>
-
-                  {editForm.cascata ? (
-                    <div className="bg-blue-50 p-4 rounded-lg space-y-3 border border-blue-200">
-                      <div className="font-bold text-blue-900">
-                        Domanda {questions.findIndex(x => x.id === editForm.cascata?.domanda_id) + 1}
-                      </div>
-                      <button
-                        onClick={removeCascata}
-                        className="text-sm bg-red-500 text-white px-3 py-1 rounded font-bold hover:bg-red-600"
-                      >
-                        Rimuovi Cascata
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="space-y-3">
-                      <div>
-                        <label className="block text-sm font-bold mb-2 text-gray-700">Domanda Genitore</label>
-                        <select
-                          value={editForm.cascata?.domanda_id || ""}
-                          onChange={(e) => {
-                            if (e.target.value) setCascata(e.target.value, "");
-                          }}
-                          className="w-full border border-gray-200 rounded-lg p-3"
-                        >
-                          <option value="">-- Seleziona --</option>
-                          {questions.filter(q => q.id !== editForm.id).map((q) => (
-                            <option key={q.id} value={q.id}>
-                              {questions.indexOf(q) + 1}. {q.text}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      {editForm.cascata?.domanda_id && (
-                        <div>
-                          <label className="block text-sm font-bold mb-2 text-gray-700">Risposta Richiesta</label>
-                          <select
-                            value={editForm.cascata?.risposta || ""}
-                            onChange={(e) => setCascata(editForm.cascata!.domanda_id, e.target.value)}
-                            className="w-full border border-gray-200 rounded-lg p-3"
-                          >
-                            <option value="">-- Seleziona --</option>
-                            {questions.find(q => q.id === editForm.cascata?.domanda_id)?.options.map((opt) => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-
-                <div className="flex gap-3 pt-6 border-t">
-                  <button
-                    onClick={() => setEditingQuestion(null)}
-                    className="flex-1 bg-gray-200 text-gray-800 px-4 py-3 rounded-lg font-bold hover:bg-gray-300"
-                  >
-                    Annulla
-                  </button>
-                  <button
-                    onClick={saveQuestion}
-                    className="flex-1 bg-[#7CB342] text-white px-4 py-3 rounded-lg font-bold hover:bg-[#689F38]"
-                  >
-                    Salva
-                  </button>
-                </div>
-              </div>
-            </motion.div>
+      <AnimatePresence>{editingQuestion && editForm && (
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setEditingQuestion(null)}>
+          <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} onClick={(e) => e.stopPropagation()} className="bg-white rounded-2xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <h2 className="text-2xl font-black text-[#0066A1] mb-6">Modifica Domanda</h2>
+            <div className="space-y-6">
+              <div><label className="block font-bold mb-2 text-gray-800">Testo</label><input type="text" value={editForm.text} onChange={(e) => setEditForm({ ...editForm, text: e.target.value })} className="w-full border border-gray-200 rounded-lg p-3 font-bold" /></div>
+              <div><label className="block font-bold mb-3 text-gray-800">Opzioni</label><div className="space-y-2">{editForm.options.map((opt, idx) => (
+                <div key={idx} className="flex gap-2"><input type="text" value={opt} onChange={(e) => updateOption(idx, e.target.value)} className="flex-1 border border-gray-200 rounded-lg p-3" /><button onClick={() => removeOption(idx)} className="text-red-500 hover:bg-red-50 p-3 rounded-lg"><Trash2 size={18} /></button></div>
+              ))}</div><button onClick={addOption} className="mt-3 flex items-center gap-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg font-bold text-sm hover:bg-gray-200"><Plus size={16} /> Aggiungi</button></div>
+              <div className="border-t pt-6"><label className="block font-bold mb-3 text-gray-800">Cascata</label>{editForm.cascata ? (
+                <div className="bg-blue-50 p-4 rounded-lg border border-blue-200 space-y-3"><div className="font-bold text-blue-900">Domanda {questions.findIndex(x => x.id === editForm.cascata?.domanda_id) + 1}</div><button onClick={removeCascata} className="text-sm bg-red-500 text-white px-3 py-1 rounded font-bold hover:bg-red-600">Rimuovi</button></div>
+              ) : (
+                <div className="space-y-3"><div><label className="block text-sm font-bold mb-2 text-gray-700">Domanda Genitore</label><select value={editForm.cascata?.domanda_id || ""} onChange={(e) => { if (e.target.value) setCascata(e.target.value, ""); }} className="w-full border border-gray-200 rounded-lg p-3"><option value="">Seleziona</option>{questions.filter(q => q.id !== editForm.id).map((q) => (<option key={q.id} value={q.id}>{questions.indexOf(q) + 1}. {q.text}</option>))}</select></div>{editForm.cascata?.domanda_id && (
+                  <div><label className="block text-sm font-bold mb-2 text-gray-700">Risposta</label><select value={editForm.cascata?.risposta || ""} onChange={(e) => setCascata(editForm.cascata!.domanda_id, e.target.value)} className="w-full border border-gray-200 rounded-lg p-3"><option value="">Seleziona</option>{questions.find(q => q.id === editForm.cascata?.domanda_id)?.options.map((opt) => (<option key={opt} value={opt}>{opt}</option>))}</select></div>
+                )}</div>
+              )}</div>
+              <div className="flex gap-3 pt-6 border-t"><button onClick={() => setEditingQuestion(null)} className="flex-1 bg-gray-200 text-gray-800 px-4 py-3 rounded-lg font-bold hover:bg-gray-300">Annulla</button><button onClick={saveQuestion} className="flex-1 bg-[#7CB342] text-white px-4 py-3 rounded-lg font-bold hover:bg-[#689F38]">Salva</button></div>
+            </div>
           </motion.div>
-        )}
-      </AnimatePresence>
+        </motion.div>
+      )}</AnimatePresence>
     </div>
   );
 }
