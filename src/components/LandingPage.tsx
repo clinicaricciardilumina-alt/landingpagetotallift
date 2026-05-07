@@ -185,7 +185,7 @@ export default function LandingPage() {
                       src={url}
                       alt={img}
                       className="w-full h-64 object-cover hover:scale-105 transition-transform"
-                      onError={(e) => e.currentTarget.style.display = 'none'}
+                      onError={(e) => { e.currentTarget.style.display = 'none'; }}
                     />
                   </div>
                 );
