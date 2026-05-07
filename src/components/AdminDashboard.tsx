@@ -84,7 +84,7 @@ export default function AdminDashboard({ setIsAuthenticated }: { setIsAuthentica
 
   const openEditQuestion = (q: Question) => {
     setEditingQuestion(q);
-    setEditForm({...q});
+    setEditForm({ ...q });
   };
 
   const saveQuestion = async () => {
@@ -113,7 +113,7 @@ export default function AdminDashboard({ setIsAuthenticated }: { setIsAuthentica
     if (!editForm) return;
     const newOptions = [...(editForm.options || [])];
     newOptions[idx] = value;
-    setEditForm({...editForm, options: newOptions});
+    setEditForm({ ...editForm, options: newOptions });
   };
 
   const removeOption = (idx: number) => {
@@ -207,6 +207,7 @@ export default function AdminDashboard({ setIsAuthenticated }: { setIsAuthentica
           
             href="/"
             target="_blank"
+            rel="noreferrer"
             className="flex items-center justify-center gap-2 w-full py-3 bg-white/10 rounded-xl text-xs font-bold hover:bg-white/20 transition-all"
           >
             Visualizza Landing <ExternalLink size={14} />
@@ -248,7 +249,7 @@ export default function AdminDashboard({ setIsAuthenticated }: { setIsAuthentica
               </div>
               <div className="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-blue-400 hover:shadow-md transition-all">
                 <div className="text-gray-400 font-bold text-[10px] uppercase tracking-widest mb-1">Incasso</div>
-                <div className="text-3xl font-black text-blue-500">€{stats.paid_bookings * 67}</div>
+                <div className="text-3xl font-black text-blue-500">{stats.paid_bookings * 67}€</div>
               </div>
               <div className="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-orange-400 hover:shadow-md transition-all">
                 <div className="text-gray-400 font-bold text-[10px] uppercase tracking-widest mb-1">Conversion</div>
@@ -315,7 +316,7 @@ export default function AdminDashboard({ setIsAuthenticated }: { setIsAuthentica
                         <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">Titolo</label>
                         <input
                           value={settings.hero_title}
-                          onChange={e => setSettings({...settings, hero_title: e.target.value})}
+                          onChange={e => setSettings({ ...settings, hero_title: e.target.value })}
                           className="w-full bg-gray-50 border border-gray-200 rounded-xl p-4 font-bold text-gray-800 outline-none focus:ring-4 focus:ring-[#0066A1]/10"
                         />
                       </div>
@@ -323,7 +324,7 @@ export default function AdminDashboard({ setIsAuthenticated }: { setIsAuthentica
                         <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">Sottotitolo</label>
                         <input
                           value={settings.hero_subtitle}
-                          onChange={e => setSettings({...settings, hero_subtitle: e.target.value})}
+                          onChange={e => setSettings({ ...settings, hero_subtitle: e.target.value })}
                           className="w-full bg-gray-50 border border-gray-200 rounded-xl p-4 font-bold text-gray-800 outline-none focus:ring-4 focus:ring-[#0066A1]/10"
                         />
                       </div>
@@ -331,7 +332,7 @@ export default function AdminDashboard({ setIsAuthenticated }: { setIsAuthentica
                         <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">Data</label>
                         <input
                           value={settings.hero_date}
-                          onChange={e => setSettings({...settings, hero_date: e.target.value})}
+                          onChange={e => setSettings({ ...settings, hero_date: e.target.value })}
                           className="w-full bg-gray-50 border border-gray-200 rounded-xl p-4 font-bold"
                         />
                       </div>
@@ -339,7 +340,7 @@ export default function AdminDashboard({ setIsAuthenticated }: { setIsAuthentica
                         <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">CTA</label>
                         <input
                           value={settings.cta_text}
-                          onChange={e => setSettings({...settings, cta_text: e.target.value})}
+                          onChange={e => setSettings({ ...settings, cta_text: e.target.value })}
                           className="w-full bg-gray-50 border border-gray-200 rounded-xl p-4 font-bold"
                         />
                       </div>
@@ -348,7 +349,7 @@ export default function AdminDashboard({ setIsAuthenticated }: { setIsAuthentica
                         <textarea
                           rows={4}
                           value={settings.hero_description}
-                          onChange={e => setSettings({...settings, hero_description: e.target.value})}
+                          onChange={e => setSettings({ ...settings, hero_description: e.target.value })}
                           className="w-full bg-gray-50 border border-gray-200 rounded-xl p-4 font-medium text-gray-600 resize-none"
                         />
                       </div>
@@ -357,7 +358,7 @@ export default function AdminDashboard({ setIsAuthenticated }: { setIsAuthentica
                         <input
                           type="text"
                           value={settings.hero_image || ""}
-                          onChange={(e) => setSettings({...settings, hero_image: e.target.value})}
+                          onChange={e => setSettings({ ...settings, hero_image: e.target.value })}
                           placeholder="/images/hero.jpg"
                           className="w-full bg-gray-50 border border-gray-200 rounded-xl p-4 font-bold text-gray-800 outline-none focus:ring-4 focus:ring-[#0066A1]/10"
                         />
@@ -395,13 +396,13 @@ export default function AdminDashboard({ setIsAuthenticated }: { setIsAuthentica
                             />
                             <label className="font-bold text-gray-800 cursor-pointer flex-1">{img}</label>
                           </div>
-                          
+
                           <input
                             type="text"
                             value={currentUrl}
                             onChange={(e) => {
-                              const newUrls = {...imageUrls, [img]: e.target.value};
-                              setSettings({...settings, image_urls: newUrls});
+                              const newUrls = { ...imageUrls, [img]: e.target.value };
+                              setSettings({ ...settings, image_urls: newUrls });
                             }}
                             placeholder="/images/file.jpg"
                             className="w-full bg-gray-50 border border-gray-200 rounded p-3 text-sm font-bold"
@@ -409,11 +410,11 @@ export default function AdminDashboard({ setIsAuthenticated }: { setIsAuthentica
 
                           {currentUrl && (
                             <div className="aspect-video rounded overflow-hidden bg-gray-200">
-                              <img 
-                                src={currentUrl} 
-                                className="w-full h-full object-cover" 
+                              <img
+                                src={currentUrl}
+                                className="w-full h-full object-cover"
                                 alt={img}
-                                onError={(e) => e.currentTarget.style.display = 'none'}
+                                onError={(e) => { e.currentTarget.style.display = 'none'; }}
                               />
                             </div>
                           )}
@@ -446,12 +447,12 @@ export default function AdminDashboard({ setIsAuthenticated }: { setIsAuthentica
                         </div>
                         {q.cascata && (
                           <div className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded w-fit">
-                            Appare se: domanda {questions.findIndex(x => x.id === q.cascata?.domanda_id) + 1} = "{q.cascata?.risposta}"
+                            Appare se: domanda {questions.findIndex(x => x.id === q.cascata?.domanda_id) + 1} = &quot;{q.cascata?.risposta}&quot;
                           </div>
                         )}
                       </div>
                       <button
-                        onClick={(e) => {e.stopPropagation(); deleteQuestion(q.id);}}
+                        onClick={(e) => { e.stopPropagation(); deleteQuestion(q.id); }}
                         className="text-red-500 hover:bg-red-50 p-2 rounded"
                       >
                         <Trash2 size={18} />
@@ -462,9 +463,8 @@ export default function AdminDashboard({ setIsAuthenticated }: { setIsAuthentica
               </motion.div>
             )}
 
-            {/* Modal Editing */}
-            <AnimatePresence>
-              {editingQuestion && editForm && (
+            {editingQuestion && editForm && (
+              <AnimatePresence>
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -481,18 +481,16 @@ export default function AdminDashboard({ setIsAuthenticated }: { setIsAuthentica
                     <h2 className="text-2xl font-black text-[#0066A1] mb-6">Modifica Domanda</h2>
 
                     <div className="space-y-6">
-                      {/* Testo Domanda */}
                       <div>
                         <label className="block font-bold mb-2 text-gray-800">Testo Domanda</label>
                         <input
                           type="text"
                           value={editForm.text}
-                          onChange={(e) => setEditForm({...editForm, text: e.target.value})}
+                          onChange={(e) => setEditForm({ ...editForm, text: e.target.value })}
                           className="w-full border border-gray-200 rounded-lg p-3 font-bold"
                         />
                       </div>
 
-                      {/* Opzioni */}
                       <div>
                         <label className="block font-bold mb-3 text-gray-800">Opzioni di Risposta</label>
                         <div className="space-y-2">
@@ -521,7 +519,6 @@ export default function AdminDashboard({ setIsAuthenticated }: { setIsAuthentica
                         </button>
                       </div>
 
-                      {/* Cascata */}
                       <div className="border-t pt-6">
                         <label className="block font-bold mb-3 text-gray-800">Configurazione Cascata</label>
                         <p className="text-sm text-gray-600 mb-3">Questa domanda apparirà solo se l'utente dà una risposta specifica a un'altra domanda</p>
@@ -529,7 +526,7 @@ export default function AdminDashboard({ setIsAuthenticated }: { setIsAuthentica
                         {editForm.cascata ? (
                           <div className="bg-blue-50 p-4 rounded-lg space-y-3 border border-blue-200">
                             <div className="font-bold text-blue-900">
-                              Appare quando: Domanda {questions.findIndex(x => x.id === editForm.cascata?.domanda_id) + 1} = "{editForm.cascata?.risposta}"
+                              Appare quando: Domanda {questions.findIndex(x => x.id === editForm.cascata?.domanda_id) + 1} = &quot;{editForm.cascata?.risposta}&quot;
                             </div>
                             <button
                               onClick={removeCascata}
@@ -583,7 +580,6 @@ export default function AdminDashboard({ setIsAuthenticated }: { setIsAuthentica
                         )}
                       </div>
 
-                      {/* Pulsanti */}
                       <div className="flex gap-3 pt-6 border-t">
                         <button
                           onClick={() => setEditingQuestion(null)}
@@ -601,18 +597,18 @@ export default function AdminDashboard({ setIsAuthenticated }: { setIsAuthentica
                     </div>
                   </motion.div>
                 </motion.div>
-              )}
-            </AnimatePresence>
+              </AnimatePresence>
+            )}
 
             {activeTab === "slots" && (
               <motion.div key="slots" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
                 <div className="bg-white p-6 rounded-lg border border-gray-200 space-y-4 max-w-md">
                   <h3 className="font-black text-[#0066A1]">Nuovo Slot</h3>
-                  <input type="date" value={slotForm.date} onChange={e => setSlotForm({...slotForm, date: e.target.value})} className="w-full border border-gray-200 rounded p-2" />
-                  <select value={slotForm.time} onChange={e => setSlotForm({...slotForm, time: e.target.value})} className="w-full border border-gray-200 rounded p-2">
+                  <input type="date" value={slotForm.date} onChange={e => setSlotForm({ ...slotForm, date: e.target.value })} className="w-full border border-gray-200 rounded p-2" />
+                  <select value={slotForm.time} onChange={e => setSlotForm({ ...slotForm, time: e.target.value })} className="w-full border border-gray-200 rounded p-2">
                     {["09:00", "10:00", "11:00", "14:00", "15:00", "16:00"].map(t => <option key={t}>{t}</option>)}
                   </select>
-                  <input type="number" value={slotForm.capacity} onChange={e => setSlotForm({...slotForm, capacity: parseInt(e.target.value)})} className="w-full border border-gray-200 rounded p-2" />
+                  <input type="number" value={slotForm.capacity} onChange={e => setSlotForm({ ...slotForm, capacity: parseInt(e.target.value) })} className="w-full border border-gray-200 rounded p-2" />
                   <button onClick={createSlot} className="w-full bg-[#0066A1] text-white py-2 rounded font-bold">Crea</button>
                 </div>
 
@@ -682,7 +678,7 @@ export default function AdminDashboard({ setIsAuthenticated }: { setIsAuthentica
                   <div className="text-xs text-gray-500 mt-1">Pagate</div>
                 </div>
                 <div className="bg-white p-6 rounded-lg border border-gray-200 text-center">
-                  <div className="text-3xl font-black text-blue-600">€{stats.paid_bookings * 67}</div>
+                  <div className="text-3xl font-black text-blue-600">{stats.paid_bookings * 67}€</div>
                   <div className="text-xs text-gray-500 mt-1">Incasso</div>
                 </div>
               </motion.div>
