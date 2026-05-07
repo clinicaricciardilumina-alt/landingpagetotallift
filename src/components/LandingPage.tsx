@@ -29,7 +29,9 @@ export default function LandingPage() {
         hero_date: "Mercoledì 19 Novembre",
         hero_description: "Scopri le nostre soluzioni per il ringiovanimento del volto senza bisturi.",
         cta_text: "Scopri le nostre soluzioni",
-        hero_image: "/images/hero.jpg"
+        hero_image: "/images/hero.jpg",
+        selected_images: [],
+        image_urls: {}
       });
 
       setQuestions(questionsData);
@@ -42,11 +44,9 @@ export default function LandingPage() {
   };
 
   const getNextQuestion = (): any => {
-    // Trova la prossima domanda basata su cascata
     const currentQuestion = questions[currentQuestionIndex];
     if (!currentQuestion) return null;
 
-    // Cerca domande che dipendono da questa risposta
     const nextQuestion = questions.find((q: any) => {
       if (!q.cascata) return false;
       return (
@@ -57,7 +57,6 @@ export default function LandingPage() {
 
     if (nextQuestion) return nextQuestion;
 
-    // Se non c'è una domanda con cascata, vai alla prossima domanda senza cascata
     const nextIndex = currentQuestionIndex + 1;
     let searchIndex = nextIndex;
     while (searchIndex < questions.length) {
@@ -170,6 +169,31 @@ export default function LandingPage() {
           </motion.button>
         </div>
       </section>
+
+      {/* Galleria Immagini */}
+      {settings?.selected_images && settings.selected_images.length > 0 && (
+        <section className="py-20 bg-white">
+          <div className="max-w-6xl mx-auto px-6">
+            <h2 className="text-4xl font-black text-[#0066A1] mb-12 text-center">Galleria</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {settings.selected_images.map((img: string) => {
+                const imageUrls = settings.image_urls || {};
+                const url = imageUrls[img] || `/images/${img}`;
+                return (
+                  <div key={img} className="rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all">
+                    <img 
+                      src={url}
+                      alt={img}
+                      className="w-full h-64 object-cover hover:scale-105 transition-transform"
+                      onError={(e) => e.currentTarget.style.display = 'none'}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Quiz Section */}
       {!quizCompleted && questions.length > 0 && (
