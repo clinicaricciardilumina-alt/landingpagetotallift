@@ -10,7 +10,7 @@ const DEFAULT_SETTINGS: AppSettings = {
   chatGloballyEnabled: true,
   notificationsGloballyEnabled: true,
   aiProvider: "gemini",
-  geminiModel: "gemini-2.0-flash-exp",
+  geminiModel: "gemini-2.5-flash",
   anthropicModel: "claude-haiku-4-5-20251001",
   emailFromName: "Studio Dentistico",
   brandPrimaryColor: "#0066A1",

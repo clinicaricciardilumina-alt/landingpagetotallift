@@ -236,7 +236,7 @@ async function callGemini(
   const currentMessage = String(lastMessage?.content || "");
 
   const chat = ai.chats.create({
-    model: model || "gemini-2.0-flash-exp",
+    model: model || "gemini-2.5-flash",
     config: {
       systemInstruction: systemPrompt,
       maxOutputTokens: maxTokens,
@@ -321,7 +321,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           reply: "Configura la API key Gemini nelle impostazioni (gratis su Google AI Studio).",
         });
       }
-      const model = settings.geminiModel || "gemini-2.0-flash-exp";
+      const model = settings.geminiModel || "gemini-2.5-flash";
       result = await callGemini(apiKey, model, systemPrompt, limitedMessages, maxTokens);
     }
 

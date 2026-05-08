@@ -132,17 +132,25 @@ export default function SettingsManager() {
                     onChange={e => update({ geminiApiKey: e.target.value })}
                     className="input flex-1"
                     placeholder="AIza..."
+                    autoComplete="off"
+                    autoCorrect="off"
+                    autoCapitalize="off"
+                    spellCheck={false}
+                    name="gemini-key-no-autofill"
+                    data-lpignore="true"
+                    data-1p-ignore="true"
                   />
-                  <button onClick={() => setShowAnthropicKey(!showAnthropicKey)} className="px-3 border-2 rounded-lg">
+                  <button type="button" onClick={() => setShowAnthropicKey(!showAnthropicKey)} className="px-3 border-2 rounded-lg">
                     {showAnthropicKey ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
                 </div>
               </Field>
               <Field label="Modello">
-                <select value={data.geminiModel || "gemini-2.0-flash-exp"} onChange={e => update({ geminiModel: e.target.value })} className="input">
-                  <option value="gemini-2.0-flash-exp">Gemini 2.0 Flash (consigliato)</option>
-                  <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
-                  <option value="gemini-1.5-pro">Gemini 1.5 Pro (più potente, limiti più stretti)</option>
+                <select value={data.geminiModel || "gemini-2.5-flash"} onChange={e => update({ geminiModel: e.target.value })} className="input">
+                  <option value="gemini-2.5-flash">Gemini 2.5 Flash (consigliato — più recente)</option>
+                  <option value="gemini-2.5-pro">Gemini 2.5 Pro (più potente, limiti più stretti)</option>
+                  <option value="gemini-2.0-flash">Gemini 2.0 Flash (stabile)</option>
+                  <option value="gemini-1.5-flash">Gemini 1.5 Flash (collaudato)</option>
                 </select>
               </Field>
               <p className="text-[11px] text-gray-500">
@@ -165,8 +173,15 @@ export default function SettingsManager() {
                     onChange={e => update({ anthropicApiKey: e.target.value })}
                     className="input flex-1"
                     placeholder="sk-ant-api03-..."
+                    autoComplete="off"
+                    autoCorrect="off"
+                    autoCapitalize="off"
+                    spellCheck={false}
+                    name="anthropic-key-no-autofill"
+                    data-lpignore="true"
+                    data-1p-ignore="true"
                   />
-                  <button onClick={() => setShowResendKey(!showResendKey)} className="px-3 border-2 rounded-lg">
+                  <button type="button" onClick={() => setShowResendKey(!showResendKey)} className="px-3 border-2 rounded-lg">
                     {showResendKey ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
                 </div>
@@ -195,8 +210,15 @@ export default function SettingsManager() {
                   onChange={e => update({ resendApiKey: e.target.value })}
                   className="input flex-1"
                   placeholder="re_..."
+                  autoComplete="off"
+                  autoCorrect="off"
+                  autoCapitalize="off"
+                  spellCheck={false}
+                  name="resend-key-no-autofill"
+                  data-lpignore="true"
+                  data-1p-ignore="true"
                 />
-                <button onClick={() => setShowResendKey(!showResendKey)} className="px-3 border-2 rounded-lg">
+                <button type="button" onClick={() => setShowResendKey(!showResendKey)} className="px-3 border-2 rounded-lg">
                   {showResendKey ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
