@@ -1,208 +1,240 @@
-/**
- * Firebase Service - Handles all Firebase operations
- * NOTE: Configure your Firebase credentials in your .env.local or firebase config file
- */
+import { initializeApp } from "firebase/app";
+import { getFirestore, collection, getDocs, getDoc, setDoc, addDoc, deleteDoc, doc, onSnapshot } from "firebase/firestore";
 
-import type {
-  LandingSettings,
-  Question,
-  BookingSlot,
-  Booking,
-  Statistics,
-} from "./types";
+const firebaseConfig = {
+  projectId: "landing-total",
+  apiKey: "AIzaSyAUGpj7Fn6WMqCn4rNHaVYxH-K0c6jRb8I",
+};
 
-// ============================================================================
-// MOCK IMPLEMENTATION - Replace with real Firebase when ready
-// ============================================================================
+const app = initializeApp(firebaseConfig);
+export const db = getFirestore(app);
 
-// Settings
-export async function getSettings(): Promise<LandingSettings | null> {
-  // TODO: Replace with real Firebase call
-  // const docRef = doc(db, "settings", "main");
-  // const docSnap = await getDoc(docRef);
-  // return docSnap.data() as LandingSettings;
+// SETTINGS
+export const getSettings = async () => {
+  try {
+    const docSnap = await getDoc(doc(db, "settings", "main"));
+    return docSnap.exists() ? docSnap.data() : null;
+  } catch (e) {
+    console.error("Errore getSettings:", e);
+    return null;
+  }
+};
 
-  return null;
+export const subscribeToSettings = (callback: (settings: any) => void) => {
+  try {
+    return onSnapshot(doc(db, "settings", "main"), (docSnap) => {
+      if (docSnap.exists()) {
+        callback(docSnap.data());
+      }
+    });
+  } catch (e) {
+    console.error("Errore subscribe:", e);
+    return () => {};
+  }
+};
+
+export const saveSettings = async (settings: any) => {
+  try {
+    await setDoc(doc(db, "settings", "main"), settings);
+  } catch (e) {
+    console.error("Errore saveSettings:", e);
+    throw e;
+  }
+};
+
+// QUESTIONS
+export const getQuestions = async () => {
+  try {
+    const snapshot = await getDocs(collection(db, "questions"));
+    return snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
+  } catch (e) {
+    console.error("Errore getQuestions:", e);
+    return [];
+  }
+};
+
+export const addQuestion = async (question: any) => {
+  try {
+    const docRef = await addDoc(collection(db, "questions"), question);
+    return { ...question, id: docRef.id };
+  } catch (e) {
+    console.error("Errore addQuestion:", e);
+    throw e;
+  }
+};
+
+export const updateQuestion = async (id: string, question: any) => {
+  try {
+    await setDoc(doc(db, "questions", id), question);
+  } catch (e) {
+    console.error("Errore updateQuestion:", e);
+    throw e;
+  }
+};
+
+export const deleteQuestion = async (id: string) => {
+  try {
+    await deleteDoc(doc(db, "questions", id));
+  } catch (e) {
+    console.error("Errore deleteQuestion:", e);
+    throw e;
+  }
+};
+
+// SLOTS
+export const getSlots = async () => {
+  try {
+    const snapshot = await getDocs(collection(db, "slots"));
+    return snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
+  } catch (e) {
+    console.error("Errore getSlots:", e);
+    return [];
+  }
+};
+
+export const generateSlots = async (config: any) => {
+  try {
+    const { dates, morningStart, morningEnd, afternoonStart, afternoonEnd, duration, pause } = config;
+    const slots = [];
+
+    for (const date of dates) {
+      const timeSlots = [];
+
+      if (morningStart && morningEnd) {
+        timeSlots.push(...generateTimeSlots(morningStart, morningEnd, duration, pause));
+      }
+      if (afternoonStart && afternoonEnd) {
+        timeSlots.push(...generateTimeSlots(afternoonStart, afternoonEnd, duration, pause));
+      }
+
+      for (const time of timeSlots) {
+        const slot = {
+          date,
+          time,
+          duration,
+          isBlocked: false,
+          createdAt: new Date().toISOString()
+        };
+        const docRef = await addDoc(collection(db, "slots"), slot);
+        slots.push({ ...slot, id: docRef.id });
+      }
+    }
+    return slots;
+  } catch (e) {
+    console.error("Errore generateSlots:", e);
+    throw e;
+  }
+};
+
+export const toggleSlotStatus = async (id: string, isBlocked: boolean) => {
+  try {
+    await setDoc(doc(db, "slots", id), { isBlocked }, { merge: true });
+  } catch (e) {
+    console.error("Errore toggleSlotStatus:", e);
+    throw e;
+  }
+};
+
+export const deleteSlot = async (id: string) => {
+  try {
+    await deleteDoc(doc(db, "slots", id));
+  } catch (e) {
+    console.error("Errore deleteSlot:", e);
+    throw e;
+  }
+};
+
+function generateTimeSlots(start: string, end: string, duration: number, pause: number): string[] {
+  const slots = [];
+  const [startH, startM] = start.split(":").map(Number);
+  const [endH, endM] = end.split(":").map(Number);
+
+  let currentMinutes = startH * 60 + startM;
+  const endMinutes = endH * 60 + endM;
+
+  while (currentMinutes + duration <= endMinutes) {
+    const h = Math.floor(currentMinutes / 60);
+    const m = currentMinutes % 60;
+    slots.push(`${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`);
+    currentMinutes += duration + pause;
+  }
+
+  return slots;
 }
 
-export async function saveSettings(settings: LandingSettings): Promise<void> {
-  // TODO: Replace with real Firebase call
-  // const docRef = doc(db, "settings", "main");
-  // await setDoc(docRef, settings, { merge: true });
-  console.log("Settings saved:", settings);
+// BOOKINGS
+export const getBookings = async () => {
+  try {
+    const snapshot = await getDocs(collection(db, "bookings"));
+    return snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
+  } catch (e) {
+    console.error("Errore getBookings:", e);
+    return [];
+  }
+};
+
+export const addBooking = async (booking: any) => {
+  try {
+    const docRef = await addDoc(collection(db, "bookings"), booking);
+    return { ...booking, id: docRef.id };
+  } catch (e) {
+    console.error("Errore addBooking:", e);
+    throw e;
+  }
+};
+
+// STATS
+export const getStats = async () => {
+  try {
+    const snapshot = await getDocs(collection(db, "bookings"));
+    const bookings = snapshot.docs.map(doc => doc.data());
+    const total_bookings = bookings.length;
+    const paid_bookings = bookings.filter(b => b.payment_status === "paid").length;
+    return { total_bookings, paid_bookings };
+  } catch (e) {
+    console.error("Errore getStats:", e);
+    return { total_bookings: 0, paid_bookings: 0 };
+  }
+};
+
+// PAGE BUILDER
+export async function savePageBuilder(pageData: any) {
+  try {
+    const docRef = doc(db, "pageBuilder", "main");
+    await setDoc(docRef, pageData, { merge: true });
+    console.log("Page Builder salvato con successo");
+    return pageData;
+  } catch (error) {
+    console.error("Errore nel salvataggio del Page Builder:", error);
+    throw error;
+  }
 }
 
-// Questions
-export async function getQuestions(): Promise<Question[]> {
-  // TODO: Replace with real Firebase call
-  // const q = query(collection(db, "questions"));
-  // const querySnapshot = await getDocs(q);
-  // return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Question));
-
-  return [];
-}
-
-export async function addQuestion(question: Omit<Question, "id">): Promise<void> {
-  // TODO: Replace with real Firebase call
-  // const docRef = await addDoc(collection(db, "questions"), question);
-  // console.log("Question added with ID: ", docRef.id);
-
-  console.log("Question added:", question);
-}
-
-export async function updateQuestion(
-  id: string,
-  question: Partial<Question>
-): Promise<void> {
-  // TODO: Replace with real Firebase call
-  // const docRef = doc(db, "questions", id);
-  // await updateDoc(docRef, question);
-
-  console.log("Question updated:", id, question);
-}
-
-export async function deleteQuestion(id: string): Promise<void> {
-  // TODO: Replace with real Firebase call
-  // const docRef = doc(db, "questions", id);
-  // await deleteDoc(docRef);
-
-  console.log("Question deleted:", id);
-}
-
-// Slots
-export async function getSlots(): Promise<BookingSlot[]> {
-  // TODO: Replace with real Firebase call
-  // const q = query(collection(db, "slots"));
-  // const querySnapshot = await getDocs(q);
-  // return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as BookingSlot));
-
-  return [];
-}
-
-export async function addSlot(slot: Omit<BookingSlot, "id">): Promise<void> {
-  // TODO: Replace with real Firebase call
-  // const docRef = await addDoc(collection(db, "slots"), slot);
-  // console.log("Slot added with ID: ", docRef.id);
-
-  console.log("Slot added:", slot);
-}
-
-export async function deleteSlot(id: string): Promise<void> {
-  // TODO: Replace with real Firebase call
-  // const docRef = doc(db, "slots", id);
-  // await deleteDoc(docRef);
-
-  console.log("Slot deleted:", id);
-}
-
-// Bookings
-export async function getBookings(): Promise<Booking[]> {
-  // TODO: Replace with real Firebase call
-  // const q = query(collection(db, "bookings"));
-  // const querySnapshot = await getDocs(q);
-  // return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Booking));
-
-  return [];
-}
-
-export async function addBooking(booking: Omit<Booking, "id">): Promise<void> {
-  // TODO: Replace with real Firebase call
-  // const docRef = await addDoc(collection(db, "bookings"), booking);
-  // console.log("Booking added with ID: ", docRef.id);
-
-  console.log("Booking added:", booking);
-}
-
-// Statistics
-export async function getStats(): Promise<Statistics | null> {
-  // TODO: Replace with real Firebase call
-  // const docRef = doc(db, "statistics", "main");
-  // const docSnap = await getDoc(docRef);
-  // return docSnap.data() as Statistics;
-
-  return {
-    total_bookings: 0,
-    paid_bookings: 0,
-    pending_bookings: 0,
-    available_slots: 0,
-    conversion_rate: 0,
-    avg_time: 0,
-  };
-}
-
-// Builder - Page data
-export async function savePageBuilder(pageData: any): Promise<void> {
-  // TODO: Replace with real Firebase call
-  // const docRef = doc(db, "builder", "pages", "main");
-  // await setDoc(docRef, pageData, { merge: true });
-
-  console.log("Page builder data saved:", pageData);
-}
-
-export async function getPageBuilder(): Promise<any> {
-  // TODO: Replace with real Firebase call
-  // const docRef = doc(db, "builder", "pages", "main");
-  // const docSnap = await getDoc(docRef);
-  // return docSnap.data();
-
-  return null;
-}
-
-// Builder - Automations
+// BUILDER - Automazioni
 export async function saveAutomation(automationData: any): Promise<void> {
-  // TODO: Replace with real Firebase call
-  // const docRef = doc(db, "automazioni", "automations", automationData.id);
-  // await setDoc(docRef, automationData, { merge: true });
-
-  console.log("Automation data saved:", automationData);
+  try {
+    const docRef = doc(db, "automazioni", "automations", automationData.id);
+    await setDoc(docRef, automationData, { merge: true });
+    console.log("Automation salvata con successo");
+  } catch (error) {
+    console.error("Errore nel salvataggio dell'Automation:", error);
+    throw error;
+  }
 }
 
 export async function getAutomations(): Promise<any[]> {
-  // TODO: Replace with real Firebase call
-  // const q = query(collection(db, "automazioni", "automations"));
-  // const querySnapshot = await getDocs(q);
-  // return querySnapshot.docs.map(doc => doc.data());
-
-  return [];
+  try {
+    const snapshot = await getDocs(collection(db, "automazioni", "automations"));
+    return snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
+  } catch (error) {
+    console.error("Errore nel caricamento delle Automazioni:", error);
+    return [];
+  }
 }
 
-// ============================================================================
-// REAL FIREBASE IMPLEMENTATION TEMPLATE
-// ============================================================================
-// When you're ready to integrate with Firebase, uncomment and use this:
-//
-// import {
-//   initializeApp,
-//   getApps,
-//   getApp,
-// } from "firebase/app";
-// import {
-//   getFirestore,
-//   collection,
-//   doc,
-//   getDoc,
-//   getDocs,
-//   setDoc,
-//   updateDoc,
-//   addDoc,
-//   deleteDoc,
-//   query,
-//   where,
-//   orderBy,
-// } from "firebase/firestore";
-//
-// // Initialize Firebase
-// const firebaseConfig = {
-//   apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
-//   authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
-//   projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
-//   storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
-//   messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
-//   appId: process.env.REACT_APP_FIREBASE_APP_ID,
-// };
-//
-// const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
-// export const db = getFirestore(app);
-//
-// Then replace the mock implementations above with the real Firebase calls
-// ============================================================================
+// Type definitions for Builder
+export type LandingSettings = any;
+export type Question = any;
+export type BookingSlot = any;
+export type Booking = any;
+export type Statistics = any;
