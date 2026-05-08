@@ -1,0 +1,41 @@
+import React from "react";
+import { Clock, Check, AlertCircle } from "lucide-react";
+
+export default function AutomationHistory() {
+  const [history] = React.useState<any[]>([]);
+
+  return (
+    <div className="p-8 space-y-6">
+      <div>
+        <h2 className="text-2xl font-bold text-gray-900">Storico Automazioni</h2>
+        <p className="text-gray-600 text-sm mt-1">Visualizza tutte le automazioni eseguite</p>
+      </div>
+
+      {history.length === 0 ? (
+        <div className="bg-white rounded-lg border-2 border-dashed border-gray-300 p-12 text-center">
+          <Clock size={32} className="mx-auto text-gray-300 mb-4" />
+          <h3 className="text-lg font-semibold text-gray-700">Nessuna automazione eseguita</h3>
+          <p className="text-gray-500 mt-2">Lo storico delle automazioni apparirà qui quando avrai creato e eseguito automazioni</p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {history.map((item, idx) => (
+            <div key={idx} className="bg-white rounded-lg border border-gray-200 p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-bold text-gray-900">{item.name}</h3>
+                  <p className="text-sm text-gray-500">{item.timestamp}</p>
+                </div>
+                <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                  item.status === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                }`}>
+                  {item.status === 'success' ? 'Successo' : 'Errore'}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
