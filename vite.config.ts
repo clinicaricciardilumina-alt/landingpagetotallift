@@ -1,18 +1,26 @@
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
-import {defineConfig, loadEnv} from 'vite';
+import {defineConfig} from 'vite';
 
-export default defineConfig(({mode}) => {
-  const env = loadEnv(mode, '.', '');
+export default defineConfig(() => {
   return {
     plugins: [react(), tailwindcss()],
-    define: {
-      'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY),
-    },
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),
+      },
+    },
+    build: {
+      rollupOptions: {
+        external: (id) => {
+          // Pacchetti server-only che non devono finire nel bundle browser
+          if (id === 'firebase-admin' || id.startsWith('firebase-admin/')) return true;
+          if (id === '@anthropic-ai/sdk' || id.startsWith('@anthropic-ai/sdk/')) return true;
+          if (id === 'resend' || id.startsWith('resend/')) return true;
+          if (id === '@vercel/node' || id.startsWith('@vercel/node/')) return true;
+          return false;
+        },
       },
     },
     server: {
