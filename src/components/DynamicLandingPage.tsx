@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import type { LandingPageDoc, ContactForm, FunnelQuestion, ThankYouPage, BookingSlot, Lead } from "../types";
+import type { LandingPageDoc, ContactForm, FunnelQuestion, ThankYouPage, BookingSlot, Lead, ChatBot } from "../types";
 import * as funnelService from "../lib/funnelService";
+import * as chatService from "../lib/chatService";
+import * as settingsService from "../lib/settingsService";
+import ChatWidget from "./chat/ChatWidget";
 
 export default function DynamicLandingPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -10,8 +13,11 @@ export default function DynamicLandingPage() {
   const [form, setForm] = useState<ContactForm | null>(null);
   const [thankYouPage, setThankYouPage] = useState<ThankYouPage | null>(null);
   const [questions, setQuestions] = useState<FunnelQuestion[]>([]);
+  const [chatBot, setChatBot] = useState<ChatBot | null>(null);
+  const [chatGloballyEnabled, setChatGloballyEnabled] = useState(true);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+
 
   // Quiz/funnel state
   const [currentQuestionId, setCurrentQuestionId] = useState<string | null>(null);
@@ -59,6 +65,19 @@ export default function DynamicLandingPage() {
         }
         const allSlots = await funnelService.getBookingSlots();
         setSlots(allSlots.filter(s => s.status === "disponibile" && !s.isBlocked));
+
+        // Carica chat bot e impostazioni globali
+        try {
+          const [bot, settings] = await Promise.all([
+            chatService.getChatBotForLanding(l.id),
+            settingsService.getAppSettings(),
+          ]);
+          setChatGloballyEnabled(settings.chatGloballyEnabled !== false);
+          if (bot) setChatBot(bot);
+        } catch (e) {
+          console.warn("Errore caricamento chat:", e);
+        }
+
         setLoading(false);
       } catch (e) {
         console.error(e);
@@ -174,8 +193,48 @@ export default function DynamicLandingPage() {
     };
 
     try {
-      await funnelService.addLead(lead);
+      const created = await funnelService.addLead(lead);
       setSubmitted(true);
+
+      // Trigger notifiche email
+      try {
+        const [rules, settings] = await Promise.all([
+          (await import("../lib/notificationService")).getNotificationRules(),
+          settingsService.getAppSettings(),
+        ]);
+        const notifService = await import("../lib/notificationService");
+        const matching = notifService.findMatchingRules(rules, "form_submitted", {
+          landingId: landing.id,
+          funnelId: landing.funnelId,
+          tags: lead.tags,
+          funnelLevel: lead.funnelLevel,
+        });
+        const apiClient = await import("../lib/apiClient");
+        for (const rule of matching) {
+          const vars = notifService.buildVarsFromLead(
+            { ...lead, id: created.id } as Lead,
+            { dashboardUrl: settings.dashboardBaseUrl }
+          );
+          const subject = notifService.renderTemplate(rule.emailSubject, vars);
+          const body = notifService.renderTemplate(rule.emailBody, vars);
+          await apiClient.callSendEmailApi({
+            to: rule.primaryRecipient,
+            cc: rule.ccRecipients,
+            bcc: rule.bccRecipients,
+            subject,
+            html: rule.emailFormat === "html" ? body.replace(/\n/g, "<br>") : undefined,
+            text: rule.emailFormat === "text" ? body : undefined,
+            ruleId: rule.id,
+            ruleName: rule.name,
+            trigger: "form_submitted",
+            leadId: created.id,
+            landingId: landing.id,
+            funnelId: landing.funnelId,
+          });
+        }
+      } catch (notifErr) {
+        console.warn("Errore notifiche (non blocca):", notifErr);
+      }
 
       const action = form?.afterSubmitAction || "show_thank_you";
       if (action === "show_booking") {
@@ -442,6 +501,19 @@ export default function DynamicLandingPage() {
             </form>
           </div>
         </section>
+      )}
+
+      {/* CHAT AI WIDGET */}
+      {chatBot && chatGloballyEnabled && chatBot.enabled && (
+        <ChatWidget
+          bot={chatBot}
+          landingId={landing.id}
+          landingName={landing.internalName}
+          onBookingClick={() => {
+            // Scrolla a sezione form/booking
+            document.getElementById("form-section")?.scrollIntoView({ behavior: "smooth" });
+          }}
+        />
       )}
     </div>
   );
