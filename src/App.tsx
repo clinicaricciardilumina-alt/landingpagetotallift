@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import LandingPage from "./components/LandingPage";
 import AdminLogin from "./components/AdminLogin";
-import AdminApp from "./components/AdminApp";
+import AdminDashboard from "./components/AdminDashboard";
 import DynamicLandingPage from "./components/DynamicLandingPage";
 
 export default function App() {

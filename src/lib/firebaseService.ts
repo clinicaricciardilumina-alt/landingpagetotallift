@@ -99,7 +99,7 @@ export const generateSlots = async (config: any) => {
 
     for (const date of dates) {
       const timeSlots = [];
-
+      
       if (morningStart && morningEnd) {
         timeSlots.push(...generateTimeSlots(morningStart, morningEnd, duration, pause));
       }
@@ -148,17 +148,17 @@ function generateTimeSlots(start: string, end: string, duration: number, pause: 
   const slots = [];
   const [startH, startM] = start.split(":").map(Number);
   const [endH, endM] = end.split(":").map(Number);
-
+  
   let currentMinutes = startH * 60 + startM;
   const endMinutes = endH * 60 + endM;
-
+  
   while (currentMinutes + duration <= endMinutes) {
     const h = Math.floor(currentMinutes / 60);
     const m = currentMinutes % 60;
     slots.push(`${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`);
     currentMinutes += duration + pause;
   }
-
+  
   return slots;
 }
 
@@ -196,8 +196,6 @@ export const getStats = async () => {
     return { total_bookings: 0, paid_bookings: 0 };
   }
 };
-
-// PAGE BUILDER
 export async function savePageBuilder(pageData: any) {
   try {
     const docRef = doc(db, "pageBuilder", "main");
@@ -209,32 +207,3 @@ export async function savePageBuilder(pageData: any) {
     throw error;
   }
 }
-
-// BUILDER - Automazioni
-export async function saveAutomation(automationData: any): Promise<void> {
-  try {
-    const docRef = doc(db, "automazioni", "automations", automationData.id);
-    await setDoc(docRef, automationData, { merge: true });
-    console.log("Automation salvata con successo");
-  } catch (error) {
-    console.error("Errore nel salvataggio dell'Automation:", error);
-    throw error;
-  }
-}
-
-export async function getAutomations(): Promise<any[]> {
-  try {
-    const snapshot = await getDocs(collection(db, "automazioni", "automations"));
-    return snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
-  } catch (error) {
-    console.error("Errore nel caricamento delle Automazioni:", error);
-    return [];
-  }
-}
-
-// Type definitions for Builder
-export type LandingSettings = any;
-export type Question = any;
-export type BookingSlot = any;
-export type Booking = any;
-export type Statistics = any;
