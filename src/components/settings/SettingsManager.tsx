@@ -9,7 +9,7 @@ export default function SettingsManager() {
   const [savedMsg, setSavedMsg] = useState("");
   const [showAnthropicKey, setShowAnthropicKey] = useState(false);
   const [showResendKey, setShowResendKey] = useState(false);
-  const [section, setSection] = useState<"keys" | "studio" | "email">("keys");
+  const [section, setSection] = useState<"keys" | "studio" | "email" | "tracking">("keys");
 
   useEffect(() => {
     (async () => {
@@ -72,6 +72,9 @@ export default function SettingsManager() {
         </button>
         <button onClick={() => setSection("email")} className={`px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 ${section === "email" ? "bg-blue-600 text-white" : ""}`}>
           <Mail size={14} /> Email Provider
+        </button>
+        <button onClick={() => setSection("tracking")} className={`px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 ${section === "tracking" ? "bg-blue-600 text-white" : ""}`}>
+          📊 Tracking & Recensioni
         </button>
       </div>
 
@@ -283,6 +286,78 @@ export default function SettingsManager() {
             <strong>📌 Verifica dominio Resend:</strong> Per inviare email da un dominio personalizzato, devi verificarlo su Resend aggiungendo i record DNS richiesti (SPF, DKIM, DMARC). Senza verifica puoi solo inviare da <code>onboarding@resend.dev</code>.
           </div>
         </Card>
+      )}
+
+      {/* SECTION: TRACKING & GOOGLE REVIEWS */}
+      {section === "tracking" && (
+        <div className="space-y-4">
+          <Card title="📊 Pixel & Tag globali" hint="Valori usati come default per tutte le landing. Ogni landing può sovrascriverli.">
+            <Field label="Facebook Pixel ID (globale)">
+              <input
+                type="text"
+                value={data.globalFacebookPixelId || ""}
+                onChange={e => update({ globalFacebookPixelId: e.target.value || undefined })}
+                className="input font-mono"
+                placeholder="123456789012345"
+                autoComplete="off"
+                data-lpignore="true"
+              />
+            </Field>
+            <Field label="Google Tag ID (globale)" hint="G-XXXXX per GA4 o GTM-XXXXX per Tag Manager">
+              <input
+                type="text"
+                value={data.globalGoogleTagId || ""}
+                onChange={e => update({ globalGoogleTagId: e.target.value || undefined })}
+                className="input font-mono"
+                placeholder="G-XXXXXXXXXX"
+                autoComplete="off"
+                data-lpignore="true"
+              />
+            </Field>
+          </Card>
+
+          <Card title="⭐ Recensioni Google" hint="Per importare le recensioni del tuo studio nelle landing">
+            <Field label="Google Places API Key" hint="Crea su Google Cloud Console (deve avere abilitato Places API)">
+              <input
+                type="password"
+                value={data.googlePlacesApiKey || ""}
+                onChange={e => update({ googlePlacesApiKey: e.target.value || undefined })}
+                className="input font-mono"
+                placeholder="AIza..."
+                autoComplete="off"
+                autoCorrect="off"
+                autoCapitalize="off"
+                spellCheck={false}
+                name="google-places-key-no-autofill"
+                data-lpignore="true"
+                data-1p-ignore="true"
+              />
+            </Field>
+            <Field label="Place ID dello studio" hint='Trova il Place ID con il "Place ID Finder" di Google'>
+              <input
+                type="text"
+                value={data.googlePlaceId || ""}
+                onChange={e => update({ googlePlaceId: e.target.value || undefined })}
+                className="input font-mono"
+                placeholder="ChIJ..."
+              />
+              <a href="https://developers.google.com/maps/documentation/places/web-service/place-id" target="_blank" rel="noopener" className="text-[11px] text-blue-600 underline mt-1 inline-block">
+                Apri Place ID Finder →
+              </a>
+            </Field>
+            <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-3 text-xs space-y-1">
+              <p className="font-bold">💡 Come ottenere la API Key:</p>
+              <ol className="list-decimal pl-5 space-y-0.5">
+                <li>Vai su <a href="https://console.cloud.google.com/" target="_blank" rel="noopener" className="text-blue-700 underline">Google Cloud Console</a></li>
+                <li>Crea un progetto (o usa esistente)</li>
+                <li>API & Services → Library → cerca "Places API" → Enable</li>
+                <li>Credentials → Create Credentials → API Key</li>
+                <li>(Consigliato) Limita la key alle Places API per sicurezza</li>
+              </ol>
+              <p className="mt-1">Costo: Google offre $200/mese di credito gratis → in pratica <strong>gratis</strong> per uso normale.</p>
+            </div>
+          </Card>
+        </div>
       )}
 
       <style>{`.input { width: 100%; padding: 0.5rem 0.75rem; border: 2px solid #e5e7eb; border-radius: 0.5rem; font-size: 0.875rem; } .input:focus { outline: none; border-color: #3b82f6; }`}</style>
