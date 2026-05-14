@@ -376,6 +376,155 @@ function LandingEditor({ landing, onClose }: { landing: LandingPageDoc; onClose:
         </div>
       </div>
 
+      {/* Tracking / Pixel */}
+      <div className="bg-white p-6 rounded-2xl space-y-4">
+        <h3 className="font-black text-lg">📊 Tracking & Pixel</h3>
+        <p className="text-xs text-gray-500">
+          Configura Facebook Pixel e Google Tag per tracciare conversioni. Se non li metti qui, vengono usati quelli globali da Impostazioni → Tracking.
+        </p>
+        <div className="grid md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-bold mb-1">Facebook Pixel ID</label>
+            <input
+              type="text"
+              value={data.facebookPixelId || ""}
+              onChange={e => setData({...data, facebookPixelId: e.target.value || undefined})}
+              className="w-full p-3 border-2 rounded-xl font-mono text-sm"
+              placeholder="123456789012345"
+            />
+            <p className="text-[10px] text-gray-500 mt-1">Solo numeri (15 cifre)</p>
+          </div>
+          <div>
+            <label className="block text-sm font-bold mb-1">Google Tag ID (GA4 o GTM)</label>
+            <input
+              type="text"
+              value={data.googleTagId || ""}
+              onChange={e => setData({...data, googleTagId: e.target.value || undefined})}
+              className="w-full p-3 border-2 rounded-xl font-mono text-sm"
+              placeholder="G-XXXXXXXXXX o GTM-XXXXXXX"
+            />
+            <p className="text-[10px] text-gray-500 mt-1">G-XXXX per GA4, GTM-XXXX per Tag Manager</p>
+          </div>
+        </div>
+        <div className="space-y-2">
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" checked={data.trackPageView !== false} onChange={e => setData({...data, trackPageView: e.target.checked})} />
+            <span className="text-sm font-bold">Traccia visite pagina (PageView)</span>
+          </label>
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" checked={data.trackFormSubmission !== false} onChange={e => setData({...data, trackFormSubmission: e.target.checked})} />
+            <span className="text-sm font-bold">Traccia compilazione form (Lead)</span>
+          </label>
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" checked={data.trackBookingMade !== false} onChange={e => setData({...data, trackBookingMade: e.target.checked})} />
+            <span className="text-sm font-bold">Traccia prenotazione (Schedule)</span>
+          </label>
+        </div>
+      </div>
+
+      {/* Recensioni */}
+      <div className="bg-white p-6 rounded-2xl space-y-4">
+        <h3 className="font-black text-lg">⭐ Recensioni nella landing</h3>
+        <label className="flex items-center gap-2 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={data.reviewsEnabled || false}
+            onChange={e => setData({...data, reviewsEnabled: e.target.checked})}
+          />
+          <span className="font-bold">Mostra recensioni in questa landing</span>
+        </label>
+
+        {data.reviewsEnabled && (
+          <div className="pl-6 space-y-3 border-l-2 border-blue-200">
+            <div className="grid md:grid-cols-2 gap-4">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={data.reviewsShowGoogle || false}
+                  onChange={e => setData({...data, reviewsShowGoogle: e.target.checked})}
+                />
+                <span className="text-sm font-bold">Recensioni Google (cache)</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={data.reviewsShowManual !== false}
+                  onChange={e => setData({...data, reviewsShowManual: e.target.checked})}
+                />
+                <span className="text-sm font-bold">Recensioni manuali</span>
+              </label>
+            </div>
+
+            {data.reviewsShowGoogle && (
+              <div>
+                <label className="block text-sm font-bold mb-1">Filtra Google per parole chiave (opzionale)</label>
+                <input
+                  type="text"
+                  value={(data.reviewsKeywordFilter || []).join(", ")}
+                  onChange={e => setData({...data, reviewsKeywordFilter: e.target.value.split(",").map(s => s.trim()).filter(Boolean)})}
+                  className="w-full p-3 border-2 rounded-xl"
+                  placeholder="Es: sbiancamento, smile, denti bianchi"
+                />
+                <p className="text-[10px] text-gray-500 mt-1">
+                  Mostra solo recensioni che contengono almeno una di queste parole. Lascia vuoto per mostrare tutte.
+                </p>
+              </div>
+            )}
+
+            {data.reviewsShowManual !== false && (
+              <div>
+                <label className="block text-sm font-bold mb-1">Tag recensioni manuali (opzionale)</label>
+                <input
+                  type="text"
+                  value={(data.reviewsManualTags || []).join(", ")}
+                  onChange={e => setData({...data, reviewsManualTags: e.target.value.split(",").map(s => s.trim()).filter(Boolean)})}
+                  className="w-full p-3 border-2 rounded-xl"
+                  placeholder="Es: sbiancamento, faccette"
+                />
+                <p className="text-[10px] text-gray-500 mt-1">
+                  Mostra solo recensioni manuali con questi tag servizio. Lascia vuoto per mostrare tutte le visibili.
+                </p>
+              </div>
+            )}
+
+            <div className="grid md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-bold mb-1">Quante mostrare</label>
+                <input
+                  type="number"
+                  min={1}
+                  max={20}
+                  value={data.reviewsMaxCount || 5}
+                  onChange={e => setData({...data, reviewsMaxCount: parseInt(e.target.value) || 5})}
+                  className="w-full p-3 border-2 rounded-xl"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-bold mb-1">Layout</label>
+                <select
+                  value={data.reviewsLayout || "grid"}
+                  onChange={e => setData({...data, reviewsLayout: e.target.value as any})}
+                  className="w-full p-3 border-2 rounded-xl"
+                >
+                  <option value="grid">Griglia</option>
+                  <option value="carousel">Carosello</option>
+                  <option value="list">Lista</option>
+                </select>
+              </div>
+            </div>
+
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={data.reviewsShowSummaryWidget !== false}
+                onChange={e => setData({...data, reviewsShowSummaryWidget: e.target.checked})}
+              />
+              <span className="text-sm">Mostra widget riepilogo Google (⭐ X.X/5 · N recensioni · Link)</span>
+            </label>
+          </div>
+        )}
+      </div>
+
       {/* Blocchi */}
       <div className="bg-white p-6 rounded-2xl space-y-4">
         <h3 className="font-black text-lg">Blocchi contenuto ({data.blocks.length})</h3>
