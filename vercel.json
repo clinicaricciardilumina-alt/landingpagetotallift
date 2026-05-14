@@ -5,6 +5,15 @@
   ],
   "functions": {
     "api/chat.ts": { "maxDuration": 30 },
-    "api/send-email.ts": { "maxDuration": 15 }
-  }
+    "api/send-email.ts": { "maxDuration": 15 },
+    "api/send-broadcast.ts": { "maxDuration": 60 },
+    "api/run-scheduled.ts": { "maxDuration": 60 },
+    "api/enroll-lead.ts": { "maxDuration": 15 }
+  },
+  "crons": [
+    {
+      "path": "/api/run-scheduled",
+      "schedule": "*/5 * * * *"
+    }
+  ]
 }

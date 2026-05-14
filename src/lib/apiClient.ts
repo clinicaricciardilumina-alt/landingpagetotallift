@@ -64,3 +64,43 @@ export async function callSendEmailApi(payload: SendEmailPayload): Promise<{
   });
   return await res.json();
 }
+
+// =====================================================
+// EMAIL AUTOMATION & BROADCAST
+// =====================================================
+
+export async function callEnrollLead(
+  leadId: string,
+  trigger: string,
+  triggerTag?: string
+): Promise<{ ok: boolean; enrolled?: number; error?: string }> {
+  try {
+    const res = await fetch("/api/enroll-lead", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ leadId, trigger, triggerTag }),
+    });
+    return await res.json();
+  } catch (e: any) {
+    return { ok: false, error: e?.message || "Network error" };
+  }
+}
+
+export async function callSendBroadcast(broadcastId: string): Promise<{
+  ok: boolean;
+  totalSent?: number;
+  totalFailed?: number;
+  recipients?: number;
+  error?: string;
+}> {
+  try {
+    const res = await fetch("/api/send-broadcast", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ broadcastId }),
+    });
+    return await res.json();
+  } catch (e: any) {
+    return { ok: false, error: e?.message || "Network error" };
+  }
+}

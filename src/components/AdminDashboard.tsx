@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import {
   ChevronRight, Globe, GitBranch, HelpCircle, FileText, Heart,
   Calendar, UserCheck, Library, BarChart3, TrendingUp, Settings as SettingsIcon,
-  MessageCircle, Mail, Layers, Zap, Workflow,
+  MessageCircle, Mail, Layers, Zap, Workflow, Send, BarChart,
 } from "lucide-react";
 import { cn } from "../lib/utils";
 import * as funnelService from "../lib/funnelService";
@@ -20,11 +20,17 @@ import FlowFunnelsList from "./flow/FlowFunnelsList";
 import ChatBotsManager from "./chat/ChatBotsManager";
 import NotificationsManager from "./notifications/NotificationsManager";
 import SettingsManager from "./settings/SettingsManager";
+import EmailTemplatesManager from "./email/EmailTemplatesManager";
+import EmailAutomationsManager from "./email/EmailAutomationsManager";
+import BroadcastsManager from "./email/BroadcastsManager";
+import AnalyticsDashboard from "./analytics/AnalyticsDashboard";
 
 type Tab =
   | "landings" | "templates" | "forms" | "thankYou" | "questions" | "quickFunnels"
   | "flowFunnels"
   | "chatBots" | "notifications" | "automations"
+  | "emailTemplates" | "emailAutomations" | "broadcasts"
+  | "analytics"
   | "leads" | "slots"
   | "settings";
 
@@ -50,7 +56,7 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { id: "landings", label: "Landing Pages", icon: Globe },
       { id: "templates", label: "Libreria Template", icon: Library },
-      { id: "flowFunnels", label: "Flow Builder", icon: Workflow, badge: "NEW" },
+      { id: "flowFunnels", label: "Flow Builder", icon: Workflow },
       { id: "forms", label: "Moduli Contatto", icon: FileText },
       { id: "thankYou", label: "Thank You Pages", icon: Heart },
       { id: "questions", label: "Domande (lista)", icon: HelpCircle },
@@ -62,9 +68,27 @@ const NAV_GROUPS: NavGroup[] = [
     label: "ENGAGEMENT",
     icon: MessageCircle,
     items: [
-      { id: "chatBots", label: "Chat AI", icon: MessageCircle, badge: "NEW" },
-      { id: "notifications", label: "Notifiche Email", icon: Mail, badge: "NEW" },
-      { id: "automations", label: "Workflow", icon: Workflow },
+      { id: "chatBots", label: "Chat AI", icon: MessageCircle },
+      { id: "notifications", label: "Notifiche Interne", icon: Mail },
+      { id: "automations", label: "Workflow CRM", icon: Workflow },
+    ],
+  },
+  {
+    id: "email",
+    label: "EMAIL",
+    icon: Mail,
+    items: [
+      { id: "emailTemplates", label: "Template Email", icon: FileText, badge: "NEW" },
+      { id: "emailAutomations", label: "Sequenze automatiche", icon: Zap, badge: "NEW" },
+      { id: "broadcasts", label: "Email Marketing", icon: Send, badge: "NEW" },
+    ],
+  },
+  {
+    id: "analytics",
+    label: "ANALYTICS",
+    icon: BarChart,
+    items: [
+      { id: "analytics", label: "Dashboard", icon: BarChart, badge: "NEW" },
     ],
   },
   {
@@ -175,6 +199,10 @@ export default function AdminDashboard({ setIsAuthenticated }: { setIsAuthentica
             {activeTab === "flowFunnels" && <FlowFunnelsList />}
             {activeTab === "chatBots" && <ChatBotsManager />}
             {activeTab === "notifications" && <NotificationsManager />}
+            {activeTab === "emailTemplates" && <EmailTemplatesManager />}
+            {activeTab === "emailAutomations" && <EmailAutomationsManager />}
+            {activeTab === "broadcasts" && <BroadcastsManager />}
+            {activeTab === "analytics" && <AnalyticsDashboard />}
             {activeTab === "settings" && <SettingsManager />}
           </div>
         </div>

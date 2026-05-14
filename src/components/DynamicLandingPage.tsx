@@ -236,6 +236,15 @@ export default function DynamicLandingPage() {
         console.warn("Errore notifiche (non blocca):", notifErr);
       }
 
+      // Iscrizione automatica nelle email automation
+      try {
+        const apiClient = await import("../lib/apiClient");
+        await apiClient.callEnrollLead(created.id, "form_submitted");
+        await apiClient.callEnrollLead(created.id, "lead_created");
+      } catch (autoErr) {
+        console.warn("Errore enrollment automation (non blocca):", autoErr);
+      }
+
       const action = form?.afterSubmitAction || "show_thank_you";
       if (action === "show_booking") {
         setShowBooking(true);

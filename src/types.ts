@@ -289,8 +289,11 @@ export type AutomationTriggerType =
   | "form_submitted"
   | "answer_given"
   | "booking_made"
+  | "booking_canceled"
   | "level_changed"
-  | "tag_assigned";
+  | "tag_assigned"
+  | "tag_added"
+  | "manual_trigger";
 
 export type AutomationActionType =
   | "send_email"
@@ -682,3 +685,212 @@ export interface AppSettings {
   updatedAt: string;
 }
 
+
+// =====================================================
+// EMAIL TEMPLATES (riusabili per automation + broadcast)
+// =====================================================
+export type EmailTemplateCategory =
+  | "benvenuto"
+  | "promemoria"
+  | "follow_up"
+  | "marketing"
+  | "transazionale"
+  | "altro";
+
+export interface EmailTemplateV2 {
+  id: string;
+  internalName: string;
+  category: EmailTemplateCategory;
+  subject: string;
+  // Modalità di editing
+  editorMode: "simple" | "html";
+  // Per modalità simple
+  bodyText?: string;          // Testo principale (markdown-like, link automatici)
+  ctaButtonLabel?: string;    // Bottone "Prenota ora", ecc.
+  ctaButtonUrl?: string;
+  // Per modalità HTML
+  bodyHtml?: string;
+  // Branding
+  headerImageUrl?: string;
+  footerText?: string;
+  // Variabili dichiarate (per validazione)
+  variablesUsed?: string[];
+  // Metadati
+  createdAt: string;
+  updatedAt: string;
+}
+
+// =====================================================
+// EMAIL AUTOMATION (sequenze automatiche post-evento)
+// =====================================================
+export type AutomationStepDelay = "immediate" | "minutes" | "hours" | "days";
+
+export interface AutomationStep {
+  id: string;
+  order: number;            // ordine sequenziale (0, 1, 2, ...)
+  // Quando inviare
+  delayType: AutomationStepDelay;
+  delayValue: number;       // 0 se immediate
+  // Cosa inviare
+  templateId: string;
+  // Condizioni opzionali per saltare lo step
+  skipIfTagPresent?: string[];      // Salta se il lead ha questi tag
+  skipIfLevelIs?: string[];         // Salta se è già a livello X
+  skipIfBookingMade?: boolean;      // Salta se ha già prenotato
+  // Modifiche al lead dopo invio
+  addTagsAfterSend?: string[];
+  changeLevelAfterSend?: string;
+}
+
+export interface EmailAutomation {
+  id: string;
+  name: string;
+  description?: string;
+  enabled: boolean;
+  // Trigger
+  trigger: AutomationTriggerType;
+  triggerTagFilter?: string;        // Per "tag_added"
+  // Filtri opzionali (chi entra in questa automation)
+  filterLandingId?: string;
+  filterFunnelId?: string;
+  filterService?: string;
+  filterFunnelLevel?: FunnelLevel;
+  filterTags?: string[];
+  // Steps (sequenza email)
+  steps: AutomationStep[];
+  // Stats (denormalizzate)
+  totalEnrolled?: number;
+  totalCompleted?: number;
+  // Metadati
+  createdAt: string;
+  updatedAt: string;
+}
+
+// =====================================================
+// AUTOMATION ENROLLMENT (lead "iscritti" a una sequenza)
+// =====================================================
+export type EnrollmentStatus = "active" | "completed" | "exited" | "failed";
+
+export interface AutomationEnrollment {
+  id: string;
+  automationId: string;
+  leadId: string;
+  status: EnrollmentStatus;
+  // Progresso
+  currentStepOrder: number;       // -1 = appena iscritto, 0 = primo step inviato
+  nextScheduledAt?: string;       // ISO datetime quando inviare il prossimo step
+  // Storico
+  stepsCompleted: {
+    stepId: string;
+    sentAt: string;
+    skipped?: boolean;
+    skipReason?: string;
+  }[];
+  // Exit/completion
+  enrolledAt: string;
+  completedAt?: string;
+  exitedAt?: string;
+  exitReason?: string;
+}
+
+// =====================================================
+// BROADCAST CAMPAIGNS (email marketing manuali)
+// =====================================================
+export type BroadcastStatus = "draft" | "scheduled" | "sending" | "sent" | "failed";
+
+export interface BroadcastCampaign {
+  id: string;
+  name: string;
+  description?: string;
+  status: BroadcastStatus;
+  // Contenuto
+  templateId?: string;            // Se usa un template esistente
+  subject: string;
+  bodyText?: string;
+  bodyHtml?: string;
+  editorMode: "simple" | "html";
+  ctaButtonLabel?: string;
+  ctaButtonUrl?: string;
+  // Audience: filtri per selezione lead
+  audienceFilters: {
+    landingIds?: string[];
+    funnelIds?: string[];
+    services?: string[];
+    funnelLevels?: FunnelLevel[];
+    tags?: string[];
+    statuses?: LeadStatus[];
+    marketingConsentRequired: boolean;  // Default true (GDPR)
+    excludeUnsubscribed: boolean;       // Default true
+  };
+  // Lead esplicitamente inclusi/esclusi (override)
+  manuallyIncludedLeadIds?: string[];
+  manuallyExcludedLeadIds?: string[];
+  // Calcolato al momento dell'invio
+  estimatedRecipients?: number;
+  actualRecipients?: number;
+  // Scheduling
+  scheduledAt?: string;           // Se scheduled
+  sentAt?: string;
+  // Stats
+  totalSent?: number;
+  totalDelivered?: number;
+  totalOpened?: number;
+  totalClicked?: number;
+  totalFailed?: number;
+  // Metadati
+  createdAt: string;
+  updatedAt: string;
+}
+
+// =====================================================
+// EMAIL EVENT TRACKING (aperture, click, ecc.)
+// =====================================================
+export type EmailEventType = "sent" | "delivered" | "opened" | "clicked" | "bounced" | "complained" | "unsubscribed";
+
+export interface EmailEvent {
+  id: string;
+  // Riferimenti
+  leadId: string;
+  emailType: "automation" | "broadcast" | "notification";
+  automationId?: string;
+  enrollmentId?: string;
+  broadcastId?: string;
+  templateId?: string;
+  // Provider
+  providerMessageId?: string;     // ID Resend
+  // Evento
+  eventType: EmailEventType;
+  eventData?: Record<string, any>;  // Payload del webhook (es. URL cliccato)
+  occurredAt: string;
+}
+
+// =====================================================
+// ANALYTICS (snapshot/cache per performance)
+// =====================================================
+export interface AnalyticsSnapshot {
+  id: string;
+  // Periodo
+  periodStart: string;          // ISO date
+  periodEnd: string;
+  granularity: "day" | "week" | "month";
+  // Metriche
+  totalLeads: number;
+  newLeads: number;
+  qualifiedLeads: number;       // tiepido + caldo + urgente
+  bookings: number;
+  // Per source
+  leadsByLanding: Record<string, number>;
+  leadsByFunnel: Record<string, number>;
+  leadsByService: Record<string, number>;
+  leadsByLevel: Record<string, number>;
+  // Conversioni
+  visitToLeadRate?: number;     // % (se abbiamo tracking visite)
+  leadToBookingRate?: number;
+  // Email stats
+  emailsSent: number;
+  emailsOpened: number;
+  emailsClicked: number;
+  // Tempi
+  avgTimeToFirstResponse?: number;
+  computedAt: string;
+}
