@@ -357,6 +357,47 @@ export default function SettingsManager() {
               <p className="mt-1">Costo: Google offre $200/mese di credito gratis → in pratica <strong>gratis</strong> per uso normale.</p>
             </div>
           </Card>
+
+          <Card title="📷 Cloudinary (archivio immagini)" hint="Per caricare e gestire le immagini delle landing">
+            <Field label="Cloud Name" hint='Il tuo Cloud Name (es. "drnrhvjd1")'>
+              <input
+                type="text"
+                value={data.cloudinaryCloudName || ""}
+                onChange={e => update({ cloudinaryCloudName: e.target.value || undefined })}
+                className="input font-mono"
+                placeholder="drnrhvjd1"
+                autoComplete="off"
+              />
+            </Field>
+            <Field label="Upload Preset" hint='Nome del preset "Unsigned" creato in Cloudinary'>
+              <input
+                type="text"
+                value={data.cloudinaryUploadPreset || ""}
+                onChange={e => update({ cloudinaryUploadPreset: e.target.value || undefined })}
+                className="input font-mono"
+                placeholder="landing_uploads"
+                autoComplete="off"
+              />
+            </Field>
+            <Field label="Cartella destinazione (opzionale)" hint='Dove organizzare le immagini su Cloudinary'>
+              <input
+                type="text"
+                value={data.cloudinaryFolder || ""}
+                onChange={e => update({ cloudinaryFolder: e.target.value || undefined })}
+                className="input font-mono"
+                placeholder="landing_pages"
+              />
+            </Field>
+            <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 text-xs space-y-1">
+              <p className="font-bold">💡 Come configurare:</p>
+              <ol className="list-decimal pl-5 space-y-0.5">
+                <li>Account su <a href="https://cloudinary.com" target="_blank" rel="noopener" className="text-blue-700 underline">cloudinary.com</a></li>
+                <li>Settings → Upload → Add upload preset</li>
+                <li>Signing Mode: <strong>Unsigned</strong></li>
+                <li>Copia il preset name qui sopra</li>
+              </ol>
+            </div>
+          </Card>
         </div>
       )}
 
