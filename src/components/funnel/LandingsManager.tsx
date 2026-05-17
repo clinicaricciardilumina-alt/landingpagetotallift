@@ -4,6 +4,7 @@ import * as funnelService from "../../lib/funnelService";
 import { LANDING_TEMPLATES, CAMPAIGN_CATEGORIES } from "../../types";
 import type { LandingPageDoc, LandingTemplateType } from "../../types";
 import { LANDING_TEMPLATE_DEFINITIONS } from "../../lib/landingTemplates";
+import ImagePicker from "../imageLibrary/ImagePicker";
 
 export default function LandingsManager() {
   const [landings, setLandings] = useState<LandingPageDoc[]>([]);
@@ -330,8 +331,13 @@ function LandingEditor({ landing, onClose }: { landing: LandingPageDoc; onClose:
             <input type="text" value={data.subtitle} onChange={e => setData({...data, subtitle: e.target.value})} className="w-full p-3 border-2 rounded-xl" />
           </div>
           <div>
-            <label className="block text-sm font-bold mb-1">Hero image (URL)</label>
-            <input type="text" value={data.heroImage || ""} onChange={e => setData({...data, heroImage: e.target.value})} className="w-full p-3 border-2 rounded-xl" />
+            <label className="block text-sm font-bold mb-1">Hero image</label>
+            <ImagePicker
+              value={data.heroImage || ""}
+              onChange={(url) => setData({...data, heroImage: url})}
+              defaultCategory="hero"
+              label="Scegli o carica hero"
+            />
           </div>
           <div>
             <label className="block text-sm font-bold mb-1">CTA Text</label>
