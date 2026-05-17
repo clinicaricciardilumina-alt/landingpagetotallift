@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import {
   ChevronRight, Globe, GitBranch, HelpCircle, FileText, Heart,
   Calendar, UserCheck, Library, BarChart3, TrendingUp, Settings as SettingsIcon,
-  MessageCircle, Mail, Layers, Zap, Workflow, Send, BarChart, Star,
+  MessageCircle, Mail, Layers, Zap, Workflow, Send, BarChart, Star, Image as ImageIcon,
 } from "lucide-react";
 import { cn } from "../lib/utils";
 import * as funnelService from "../lib/funnelService";
@@ -25,6 +25,7 @@ import EmailAutomationsManager from "./email/EmailAutomationsManager";
 import BroadcastsManager from "./email/BroadcastsManager";
 import AnalyticsDashboard from "./analytics/AnalyticsDashboard";
 import ReviewsManager from "./reviews/ReviewsManager";
+import ImageLibraryManager from "./imageLibrary/ImageLibraryManager";
 
 type Tab =
   | "landings" | "templates" | "forms" | "thankYou" | "questions" | "quickFunnels"
@@ -33,6 +34,7 @@ type Tab =
   | "emailTemplates" | "emailAutomations" | "broadcasts"
   | "analytics"
   | "reviews"
+  | "imageLibrary"
   | "leads" | "slots"
   | "settings";
 
@@ -58,6 +60,7 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { id: "landings", label: "Landing Pages", icon: Globe },
       { id: "templates", label: "Libreria Template", icon: Library },
+      { id: "imageLibrary", label: "Archivio Immagini", icon: ImageIcon, badge: "NEW" },
       { id: "flowFunnels", label: "Flow Builder", icon: Workflow },
       { id: "forms", label: "Moduli Contatto", icon: FileText },
       { id: "thankYou", label: "Thank You Pages", icon: Heart },
@@ -207,6 +210,7 @@ export default function AdminDashboard({ setIsAuthenticated }: { setIsAuthentica
             {activeTab === "broadcasts" && <BroadcastsManager />}
             {activeTab === "analytics" && <AnalyticsDashboard />}
             {activeTab === "reviews" && <ReviewsManager />}
+            {activeTab === "imageLibrary" && <ImageLibraryManager />}
             {activeTab === "settings" && <SettingsManager />}
           </div>
         </div>
